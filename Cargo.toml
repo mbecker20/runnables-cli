@@ -6,11 +6,14 @@ author = ["mbecker20 <becker.maxh@gmail.com>"]
 description = "run any executable package in a workspace"
 license = "GPL-3.0-or-later"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "run"
+path = "src/main.rs"
 
 [dependencies]
 serde = { version = "1.0.188", features = ["derive"] }
 clap = { version = "4.4.2", features = ["derive"] }
+cursive = "0.20.0"
 anyhow = "1.0.75"
 toml = "0.7.8"
 log = "0.4.20"
