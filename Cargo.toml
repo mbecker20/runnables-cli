@@ -2,9 +2,16 @@
 name = "runnables-cli"
 version = "0.1.0"
 edition = "2021"
+author = ["mbecker20 <becker.maxh@gmail.com>"]
+description = "run any executable package in a workspace"
+license = "GPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde = { version = "1.0.188", features = ["derive"] }
 clap = { version = "4.4.2", features = ["derive"] }
+anyhow = "1.0.75"
+toml = "0.7.8"
+log = "0.4.20"
+simple_logger = "4.2.0"

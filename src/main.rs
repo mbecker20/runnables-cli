@@ -1,37 +1,28 @@
-use std::{fs, path::PathBuf};
+#[macro_use]
+extern crate log;
+
+use std::{path::PathBuf, str::FromStr};
 
 use clap::Parser;
 
+mod helpers;
+mod ignore;
+mod languages;
+
 #[derive(Parser)]
+#[command(author, version, about, long_about = None)]
 struct RunnablesCli {
+    #[arg(default_value_t = String::from("."))]
     path: String,
 }
 
-fn main() {
-    let mut paths = Vec::<String>::new();
-    find_cargo_tomls(".".into(), &mut paths);
-    println!("{paths:#?}");
-}
+fn main() -> anyhow::Result<()> {
+    helpers::init_logger(log::LevelFilter::Info)?;
 
-
-
-fn find_cargo_tomls(pathbuf: PathBuf, paths: &mut Vec<String>) {
-    let stuffs = fs::read_dir(pathbuf).unwrap();
-
-    for stuf in stuffs {
-        match stuf {
-            Ok(thing) => {
-                let path = thing.path().display().to_string();
-                if path.contains("Cargo.toml") {
-                    paths.push(path);
-                }
-                if thing.metadata().unwrap().is_dir() {
-                    find_cargo_tomls(thing.path(), paths);     
-                }
-            }
-            Err(e) => {
-                println!("{e:#?}")
-            }
-        }
-    }
+    let args = RunnablesCli::parse();
+    let path = PathBuf::from_str(&args.path)?;
+    let paths = languages::rust::get_rust_runnables(&path);
+    
+    info!("{paths:#?}");
+    Ok(())
 }
