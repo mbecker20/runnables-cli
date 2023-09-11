@@ -1,10 +1,10 @@
-use std::{fs, path::PathBuf};
+use std::{fs, path::Path};
 
 use anyhow::{anyhow, Context};
 use serde::Deserialize;
 
 use crate::{
-    ignore::ignore_dir,
+    find::FindRunnables,
     types::{Runnable, RunnableParamsVariant},
 };
 
@@ -18,55 +18,46 @@ struct CargoTomlPackage {
     name: String,
 }
 
-pub fn get_runnables(path: &PathBuf) -> Vec<Runnable> {
-    let mut runnables = Vec::<Runnable>::new();
-    if let Ok(runnable) = get_runnable(path) {
-        runnables.push(runnable);
-    }
-    let entries = fs::read_dir(path).context(format!("failed to read path: {path:?}"));
-    if entries.is_err() {
-        return Vec::new();
-    }
-    for entry in entries.unwrap() {
-        if let Ok(entry) = entry {
-            if let Ok(metadata) = entry.metadata() {
-                if metadata.is_dir() {
-                    let path = entry.path();
-                    if !ignore_dir(&path) {
-                        runnables.extend(get_runnables(&path));
-                    }
-                }
-            }
+pub struct Rust;
+
+impl FindRunnables for Rust {
+    fn find_runnable(path: &Path) -> anyhow::Result<Runnable> {
+        let metadata = path
+            .metadata()
+            .context(format!("could not get directory metadata: {path:?}"))?;
+        if !metadata.is_dir() {
+            return Err(anyhow!("path is not directory"));
         }
+        let is_runnable = fs::metadata(path.join("src/main.rs"))
+            .context(format!("could not find src/main.rs: {path:?}"))?
+            .is_file();
+        if !is_runnable {
+            return Err(anyhow!("src/main.rs is not a file: {path:?}"));
+        }
+        let cargo_toml_contents = fs::read_to_string(path.join("Cargo.toml"))
+            .context(format!("directory does not include Cargo.toml: {path:?}"))?;
+        let cargo_toml: CargoToml = toml::from_str(&cargo_toml_contents)
+            .context(format!("failed to parse Cargo.toml: {path:?}"))?;
+        Ok(Runnable {
+            name: cargo_toml.package.name,
+            path: path.to_owned(),
+            rtype: RunnableParamsVariant::Rust,
+        })
     }
-    runnables
 }
 
-fn get_runnable(path: &PathBuf) -> anyhow::Result<Runnable> {
-    let metadata = path
-        .metadata()
-        .context(format!("could not get directory metadata: {path:?}"))?;
-    if !metadata.is_dir() {
-        return Err(anyhow!("path is not directory"));
+pub fn run_rust_command(
+    runnable: &Runnable,
+    release: bool,
+    test: bool,
+    args: &Option<String>,
+) -> String {
+    if test {
+        return format!(
+            "cd {} && cargo test",
+            runnable.path.display()
+        );
     }
-    let is_runnable = fs::metadata(path.join("src/main.rs"))
-        .context(format!("could not find src/main.rs: {path:?}"))?
-        .is_file();
-    if !is_runnable {
-        return Err(anyhow!("src/main.rs is not a file: {path:?}"));
-    }
-    let cargo_toml_contents = fs::read_to_string(path.join("Cargo.toml"))
-        .context(format!("directory does not include Cargo.toml: {path:?}"))?;
-    let cargo_toml: CargoToml = toml::from_str(&cargo_toml_contents)
-        .context(format!("failed to parse Cargo.toml: {path:?}"))?;
-    Ok(Runnable {
-        name: cargo_toml.package.name,
-        path: path.clone(),
-        rtype: RunnableParamsVariant::Rust,
-    })
-}
-
-pub fn run_rust_command(runnable: &Runnable, release: bool, args: &Option<String>) -> String {
     let release = if release { " --release" } else { "" };
     let args = match args {
         Some(args) => format!(" -- {args}"),
@@ -81,6 +72,11 @@ pub fn run_rust_command(runnable: &Runnable, release: bool, args: &Option<String
 #[cfg(test)]
 mod rust_tests {
     // use super::*;
+
+    #[test]
+    fn run_test() {
+        assert_eq!("it works", "it works")
+    }
 
     // #[test]
     // fn rust_command_debug_no_args() {

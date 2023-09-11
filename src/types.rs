@@ -12,6 +12,6 @@ pub struct Runnable {
 #[derive(Debug, Clone, EnumVariants)]
 #[variant_derive(Debug, Clone, Copy)]
 pub enum RunnableParams {
-    Rust { release: bool, args: Option<String> },
+    Rust { release: bool, test: bool, args: Option<String> },
     Javascript {},
 }

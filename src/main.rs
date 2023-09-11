@@ -1,4 +1,4 @@
-use std::{cell::RefCell, path::PathBuf, rc::Rc, str::FromStr};
+use std::{cell::RefCell, io::Read, path::PathBuf, rc::Rc, str::FromStr};
 
 use clap::Parser;
 use cursive::{
@@ -10,7 +10,10 @@ use languages::rust::run_rust_command;
 use run_command::run_command_pipe_to_terminal;
 use types::{Runnable, RunnableParams};
 
+use crate::{find::FindRunnables, languages::rust::Rust};
+
 mod components;
+mod find;
 mod helpers;
 mod ignore;
 mod languages;
@@ -33,7 +36,7 @@ fn main() -> anyhow::Result<()> {
     let path = PathBuf::from_str(&args.path)?;
     let root_path = absolute_path(&args.path)?.display().to_string();
 
-    let rust_runnables = languages::rust::get_runnables(&path);
+    let rust_runnables = Rust::find_runnables(&path);
     let root_path = format!("{root_path}/");
 
     let mut siv = make_cursive_app();
@@ -44,7 +47,7 @@ fn main() -> anyhow::Result<()> {
 
     for runnable in rust_runnables {
         let text = format!(
-            "[{:?}] -> {} -> ( {} )",
+            " {:?} -> {} -> {} ",
             runnable.rtype,
             runnable.name,
             runnable_path_display(&root_path, &runnable.path)?
@@ -54,6 +57,7 @@ fn main() -> anyhow::Result<()> {
             let mut dialog = Dialog::text(text.clone())
                 .title("choose params")
                 .padding_lrtb(2, 2, 2, 2);
+
             let _state = state.clone();
             let _runnable = runnable.clone();
             dialog.add_button("debug", move |s| {
@@ -62,22 +66,40 @@ fn main() -> anyhow::Result<()> {
                     runnable: _runnable.clone(),
                     params: RunnableParams::Rust {
                         release: false,
+                        test: false,
                         args: None,
                     },
                 }));
             });
-            let state = state.clone();
-            let runnable = runnable.clone();
+
+            let _state = state.clone();
+            let _runnable = runnable.clone();
             dialog.add_button("release", move |s| {
                 s.quit();
-                state.replace(Some(State {
-                    runnable: runnable.clone(),
+                _state.replace(Some(State {
+                    runnable: _runnable.clone(),
                     params: RunnableParams::Rust {
                         release: true,
+                        test: false,
                         args: None,
                     },
                 }));
             });
+
+            let _state = state.clone();
+            let _runnable = runnable.clone();
+            dialog.add_button("test", move |s| {
+                s.quit();
+                _state.replace(Some(State {
+                    runnable: _runnable.clone(),
+                    params: RunnableParams::Rust {
+                        release: false,
+                        test: true,
+                        args: None,
+                    },
+                }));
+            });
+
             s.add_layer(dialog);
         }));
     }
@@ -108,13 +130,17 @@ fn main() -> anyhow::Result<()> {
     );
 
     let command = match params {
-        RunnableParams::Rust { release, args } => run_rust_command(runnable, *release, args),
+        RunnableParams::Rust { release, args, test } => run_rust_command(runnable, *release, *test, args),
         RunnableParams::Javascript {} => {
             todo!()
         }
     };
 
     run_command_pipe_to_terminal(&command);
+
+    println!("\nPress ENTER to close");
+    let buffer = &mut [0u8];
+    std::io::stdin().read_exact(buffer).unwrap();
 
     Ok(())
 }
