@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 use crate::{
     ignore::ignore_dir,
-    types::{Runnable, RunnableType},
+    types::{Runnable, RunnableParamsVariant},
 };
 
 #[derive(Deserialize)]
@@ -61,17 +61,12 @@ fn get_runnable(path: &PathBuf) -> anyhow::Result<Runnable> {
         .context(format!("failed to parse Cargo.toml: {path:?}"))?;
     Ok(Runnable {
         name: cargo_toml.package.name,
-        rtype: RunnableType::Rust,
         path: path.clone(),
+        rtype: RunnableParamsVariant::Rust,
     })
 }
 
-pub fn run_rust(runnable: &Runnable, release: bool, args: Option<&str>) {
-    let command = run_rust_command(runnable, release, args);
-    println!("{command}")
-}
-
-fn run_rust_command(runnable: &Runnable, release: bool, args: Option<&str>) -> String {
+pub fn run_rust_command(runnable: &Runnable, release: bool, args: &Option<String>) -> String {
     let release = if release { " --release" } else { "" };
     let args = match args {
         Some(args) => format!(" -- {args}"),
@@ -85,7 +80,7 @@ fn run_rust_command(runnable: &Runnable, release: bool, args: Option<&str>) -> S
 
 #[cfg(test)]
 mod rust_tests {
-    use super::*;
+    // use super::*;
 
     // #[test]
     // fn rust_command_debug_no_args() {

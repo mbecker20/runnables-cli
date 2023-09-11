@@ -1,19 +1,17 @@
-use std::{path::PathBuf, fmt::Display};
+use std::{path::PathBuf};
 
+use derive_variants::EnumVariants;
+
+#[derive(Clone, Debug)]
 pub struct Runnable {
     pub name: String,
-    pub rtype: RunnableType,
     pub path: PathBuf,
+    pub rtype: RunnableParamsVariant,
 }
 
-#[derive(Debug)]
-pub enum RunnableType {
-    Rust,
-    Javascript,
-}
-
-impl Display for RunnableType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!("{self:?}"))
-    }
+#[derive(Debug, Clone, EnumVariants)]
+#[variant_derive(Debug, Clone, Copy)]
+pub enum RunnableParams {
+    Rust { release: bool, args: Option<String> },
+    Javascript {},
 }

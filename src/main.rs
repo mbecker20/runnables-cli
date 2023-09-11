@@ -1,17 +1,16 @@
-#[macro_use]
-extern crate log;
-
-use std::{fmt::Display, path::PathBuf, str::FromStr};
+use std::{cell::RefCell, path::PathBuf, rc::Rc, str::FromStr};
 
 use clap::Parser;
-use helpers::{absolute_path, runnable_path_display};
-// use cursive::{
-//     align::HAlign,
-//     theme::{BorderStyle, Palette, StyleType, Theme},
-//     views::{Button, Dialog, LinearLayout, TextView},
-//     With,
-// };
+use cursive::{
+    align::HAlign,
+    views::{Button, Dialog, LinearLayout},
+};
+use helpers::{absolute_path, make_cursive_app, runnable_path_display};
+use languages::rust::run_rust_command;
+use run_command::run_command_pipe_to_terminal;
+use types::{Runnable, RunnableParams};
 
+mod components;
 mod helpers;
 mod ignore;
 mod languages;
@@ -24,11 +23,12 @@ struct RunnablesCli {
     path: String,
 }
 
-
+struct State {
+    runnable: Runnable,
+    params: RunnableParams,
+}
 
 fn main() -> anyhow::Result<()> {
-    helpers::init_logger(log::LevelFilter::Info)?;
-
     let args = RunnablesCli::parse();
     let path = PathBuf::from_str(&args.path)?;
     let root_path = absolute_path(&args.path)?.display().to_string();
@@ -36,42 +36,85 @@ fn main() -> anyhow::Result<()> {
     let rust_runnables = languages::rust::get_runnables(&path);
     let root_path = format!("{root_path}/");
 
-    // let mut siv = make_cursive_app();
+    let mut siv = make_cursive_app();
 
-    // let mut runnables = LinearLayout::vertical();
-    //
-    // for runnable in rust_runnables {
-    //     let text = format!(
-    //         "[{}] -> {} -> ( {} )",
-    //         runnable.rtype,
-    //         runnable.name,
-    //         runnable_path_display(&root_path, &runnable.path)?
-    //     );
-    //     runnables.add_child(Button::new(text.clone(), move |s| {
-    //         let root_layer = s.pop_layer().unwrap();
-    //         let dialog =
-    //             Dialog::new()
-    //                 .title(&text)
-    //                 .button("run", |_s| {})
-    //                 .button("back", move |s| {
-    //                     s.pop_layer();
-    //                     // s.add_layer(root_layer);
-    //                 });
-    //         s.add_layer(dialog);
-    //     }));
-    // }
-    //
-    // let dialog = Dialog::around(runnables)
-    //     .title(format!(
-    //         "runnables -> ( {} )",
-    //         absolute_path(&args.path)?.display()
-    //     ))
-    //     .title_position(HAlign::Center)
-    //     .padding_lrtb(2, 2, 2, 2);
-    //
-    // siv.add_layer(dialog);
-    //
-    // siv.run();
+    let state: Rc<RefCell<Option<State>>> = Default::default();
+
+    let mut runnables = LinearLayout::vertical();
+
+    for runnable in rust_runnables {
+        let text = format!(
+            "[{:?}] -> {} -> ( {} )",
+            runnable.rtype,
+            runnable.name,
+            runnable_path_display(&root_path, &runnable.path)?
+        );
+        let state = state.clone();
+        runnables.add_child(Button::new(text.clone(), move |s| {
+            let mut dialog = Dialog::text(text.clone())
+                .title("choose params")
+                .padding_lrtb(2, 2, 2, 2);
+            let _state = state.clone();
+            let _runnable = runnable.clone();
+            dialog.add_button("debug", move |s| {
+                s.quit();
+                _state.replace(Some(State {
+                    runnable: _runnable.clone(),
+                    params: RunnableParams::Rust {
+                        release: false,
+                        args: None,
+                    },
+                }));
+            });
+            let state = state.clone();
+            let runnable = runnable.clone();
+            dialog.add_button("release", move |s| {
+                s.quit();
+                state.replace(Some(State {
+                    runnable: runnable.clone(),
+                    params: RunnableParams::Rust {
+                        release: true,
+                        args: None,
+                    },
+                }));
+            });
+            s.add_layer(dialog);
+        }));
+    }
+
+    let dialog = Dialog::around(runnables)
+        .title(format!(
+            "runnables -> ( {} )",
+            absolute_path(&args.path)?.display()
+        ))
+        .title_position(HAlign::Center)
+        .padding_lrtb(2, 2, 2, 2);
+
+    siv.add_layer(dialog);
+
+    siv.run();
+
+    let state = state.borrow();
+
+    if state.is_none() {
+        return Ok(());
+    }
+
+    let State { runnable, params } = state.as_ref().unwrap();
+
+    println!(
+        "running: {}\ntype: {:?}\npath: {:?}\nparams: {params:?}\n",
+        runnable.name, runnable.rtype, runnable.path
+    );
+
+    let command = match params {
+        RunnableParams::Rust { release, args } => run_rust_command(runnable, *release, args),
+        RunnableParams::Javascript {} => {
+            todo!()
+        }
+    };
+
+    run_command_pipe_to_terminal(&command);
 
     Ok(())
 }
