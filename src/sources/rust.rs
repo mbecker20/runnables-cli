@@ -1,12 +1,43 @@
-use std::{fs, path::Path};
+use std::{fmt::Display, fs, path::Path};
 
 use anyhow::{anyhow, Context};
 use serde::Deserialize;
 
 use crate::{
-    find::FindRunnables,
-    types::{Runnable, RunnableParamsVariant},
+    runnables::{FindRunnables, RunRunnable},
+    types::{Runnable, RunnableParams},
 };
+
+#[derive(Debug, Clone, Default)]
+pub struct RustRunnableParams {
+    command: RustCommand,
+    args: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum RustCommand {
+    #[default]
+    RunDebug,
+    RunRelease,
+    Test,
+    Fmt,
+    Check,
+    Clippy,
+}
+
+impl Display for RustCommand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let d = match self {
+            RustCommand::RunDebug => "run",
+            RustCommand::RunRelease => "run --release",
+            RustCommand::Test => "test",
+            RustCommand::Fmt => "fmt",
+            RustCommand::Check => "check",
+            RustCommand::Clippy => "clippy",
+        };
+        f.write_str(d)
+    }
+}
 
 #[derive(Deserialize)]
 struct CargoToml {
@@ -16,12 +47,13 @@ struct CargoToml {
 #[derive(Deserialize)]
 struct CargoTomlPackage {
     name: String,
+    description: Option<String>,
 }
 
 pub struct Rust;
 
 impl FindRunnables for Rust {
-    fn find_runnable(path: &Path) -> anyhow::Result<Runnable> {
+    fn find_runnable(path: &Path) -> anyhow::Result<Vec<Runnable>> {
         let metadata = path
             .metadata()
             .context(format!("could not get directory metadata: {path:?}"))?;
@@ -38,35 +70,29 @@ impl FindRunnables for Rust {
             .context(format!("directory does not include Cargo.toml: {path:?}"))?;
         let cargo_toml: CargoToml = toml::from_str(&cargo_toml_contents)
             .context(format!("failed to parse Cargo.toml: {path:?}"))?;
-        Ok(Runnable {
+        Ok(vec![Runnable {
             name: cargo_toml.package.name,
+            description: cargo_toml.package.description,
             path: path.to_owned(),
-            rtype: RunnableParamsVariant::Rust,
-        })
+            params: RunnableParams::Rust(Default::default()),
+        }])
     }
 }
 
-pub fn run_rust_command(
-    runnable: &Runnable,
-    release: bool,
-    test: bool,
-    args: &Option<String>,
-) -> String {
-    if test {
-        return format!(
-            "cd {} && cargo test",
-            runnable.path.display()
-        );
+impl RunRunnable for Rust {
+    type Params = RustRunnableParams;
+
+    fn command(runnable: &Runnable, params: &Self::Params) -> String {
+        let args = match &params.args {
+            Some(args) => format!(" -- {args}"),
+            None => String::new(),
+        };
+        format!(
+            "cd {} && cargo {}{args}",
+            runnable.path.display(),
+            params.command
+        )
     }
-    let release = if release { " --release" } else { "" };
-    let args = match args {
-        Some(args) => format!(" -- {args}"),
-        None => String::new(),
-    };
-    format!(
-        "cd {} && cargo run {release}{args}",
-        runnable.path.display()
-    )
 }
 
 #[cfg(test)]

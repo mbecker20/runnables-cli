@@ -1,0 +1,13 @@
+[just-ls]
+description = "logs files / folders in current directory"
+cmd = "ls -a"
+
+[ls-in-src]
+description = "logs files / folders in src directory"
+cmd = "ls -a"
+path = "src"
+
+[ls-in-example]
+description = "logs files / folders in example directory"
+cmd = "ls -a"
+path = "runnables-example"

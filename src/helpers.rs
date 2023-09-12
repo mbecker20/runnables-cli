@@ -5,41 +5,40 @@ use std::{
 
 use anyhow::Context;
 use path_clean::PathClean;
-use cursive::{theme::{Theme, BorderStyle, Palette}, With, CursiveRunnable};
 
-pub fn make_cursive_app() -> CursiveRunnable {
-    let mut siv = cursive::default();
-    siv.add_global_callback('q', |s| s.quit());
-    siv.set_theme(Theme {
-        shadow: false,
-        borders: BorderStyle::Simple,
-        palette: Palette::retro().with(|palette| {
-            use cursive::theme::BaseColor::*;
-
-            {
-                // First, override some colors from the base palette.
-                use cursive::theme::Color::TerminalDefault;
-                use cursive::theme::PaletteColor::*;
-
-                palette[Background] = TerminalDefault;
-                palette[View] = TerminalDefault;
-                palette[Primary] = White.dark();
-                palette[TitlePrimary] = Blue.light();
-                palette[Secondary] = Blue.light();
-                palette[Highlight] = Blue.dark();
-            }
-
-            {
-                // Then override some styles.
-                use cursive::theme::Effect::*;
-                use cursive::theme::PaletteStyle::*;
-                use cursive::theme::Style;
-                palette[Highlight] = Style::from(Blue.light()).combine(Bold);
-            }
-        }),
-    });
-    siv
-}
+// pub fn make_cursive_app() -> CursiveRunnable {
+//     let mut siv = cursive::default();
+//     siv.add_global_callback('q', |s| s.quit());
+//     siv.set_theme(Theme {
+//         shadow: false,
+//         borders: BorderStyle::Simple,
+//         palette: Palette::retro().with(|palette| {
+//             use cursive::theme::BaseColor::*;
+//
+//             {
+//                 // First, override some colors from the base palette.
+//                 use cursive::theme::Color::TerminalDefault;
+//                 use cursive::theme::PaletteColor::*;
+//
+//                 palette[Background] = TerminalDefault;
+//                 palette[View] = TerminalDefault;
+//                 palette[Primary] = White.dark();
+//                 palette[TitlePrimary] = Blue.light();
+//                 palette[Secondary] = Blue.light();
+//                 palette[Highlight] = Blue.dark();
+//             }
+//
+//             {
+//                 // Then override some styles.
+//                 use cursive::theme::Effect::*;
+//                 use cursive::theme::PaletteStyle::*;
+//                 use cursive::theme::Style;
+//                 palette[Highlight] = Style::from(Blue.light()).combine(Bold);
+//             }
+//         }),
+//     });
+//     siv
+// }
 
 // pub fn init_logger(level: log::LevelFilter) -> anyhow::Result<()> {
 //     SimpleLogger::new()
@@ -53,7 +52,6 @@ pub fn make_cursive_app() -> CursiveRunnable {
 
 pub fn absolute_path(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
     let path = path.as_ref();
-
     let absolute_path = if path.is_absolute() {
         path.to_path_buf()
     } else {
@@ -62,7 +60,6 @@ pub fn absolute_path(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
             .join(path)
     }
     .clean();
-
     Ok(absolute_path)
 }
 
