@@ -6,6 +6,27 @@ use std::{
 use anyhow::Context;
 use path_clean::PathClean;
 
+pub fn absolute_path(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
+    let path = path.as_ref();
+    let absolute_path = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        env::current_dir()
+            .context("failed to get current directory from env")?
+            .join(path)
+    }
+    .clean();
+    Ok(absolute_path)
+}
+
+pub fn runnable_path_display(root_path: &str, path: impl AsRef<Path>) -> anyhow::Result<String> {
+    let res = absolute_path(path)?
+        .display()
+        .to_string()
+        .replace(root_path, "");
+    Ok(res)
+}
+
 // pub fn make_cursive_app() -> CursiveRunnable {
 //     let mut siv = cursive::default();
 //     siv.add_global_callback('q', |s| s.quit());
@@ -40,33 +61,4 @@ use path_clean::PathClean;
 //     siv
 // }
 
-// pub fn init_logger(level: log::LevelFilter) -> anyhow::Result<()> {
-//     SimpleLogger::new()
-//         .with_level(level)
-//         .env()
-//         .with_colors(true)
-//         .with_utc_timestamps()
-//         .init()
-//         .context("failed to init logger")
-// }
 
-pub fn absolute_path(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
-    let path = path.as_ref();
-    let absolute_path = if path.is_absolute() {
-        path.to_path_buf()
-    } else {
-        env::current_dir()
-            .context("failed to get current directory from env")?
-            .join(path)
-    }
-    .clean();
-    Ok(absolute_path)
-}
-
-pub fn runnable_path_display(root_path: &str, path: impl AsRef<Path>) -> anyhow::Result<String> {
-    let res = absolute_path(path)?
-        .display()
-        .to_string()
-        .replace(root_path, "");
-    Ok(res)
-}

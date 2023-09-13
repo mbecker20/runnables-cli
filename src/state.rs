@@ -1,28 +1,47 @@
-use std::{sync::Mutex, rc::Rc};
+use std::{path::PathBuf, str::FromStr};
 
-use crate::types::{Runnable, RunnableParams};
+use clap::Parser;
 
-#[derive(Default)]
+use crate::{helpers::absolute_path, sources::get_runnables, types::Runnable, CliArgs};
+
 pub struct State {
-    runnable: Mutex<Runnable>,
+    pub args: CliArgs,
+    pub runnables: Vec<Runnable>,
+    pub selected: usize,
+    pub runnable: Runnable,
 }
 
 impl State {
-    pub fn rc() -> Rc<State> {
-        Default::default()
+    pub fn new() -> anyhow::Result<State> {
+        let args = CliArgs::parse();
+        let state = State {
+            runnables: get_runnables(&PathBuf::from_str(&args.path)?),
+            args,
+            selected: 0,
+            runnable: Default::default(),
+        };
+        Ok(state)
     }
 
-    pub fn set_runnable(&self, runnable: Runnable) {
-        let mut _runnable = self.runnable.lock().unwrap();
-        *_runnable = runnable;
+    pub fn on_up(&mut self) {
+        if self.selected == 0 {
+            self.selected = self.runnables.len() - 1;
+        } else {
+            self.selected -= 1;
+        }
     }
 
-    pub fn set_params(&self, params: RunnableParams) {
-        let mut runnable = self.runnable.lock().unwrap();
-        runnable.params = params;
+    pub fn on_down(&mut self) {
+        self.selected += 1;
+        self.selected = self.selected % self.runnables.len();
     }
 
-    pub fn get_runnable(&self) -> Runnable {
-        self.runnable.lock().unwrap().clone()
+    pub fn on_enter(&mut self) {
+        self.runnable = self.runnables[self.selected].clone();
+    }
+
+    pub fn root_absolute_path(&self) -> anyhow::Result<String> {
+        let path = absolute_path(&self.args.path)?.display().to_string();
+        Ok(path)
     }
 }
