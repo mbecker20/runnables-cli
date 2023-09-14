@@ -54,8 +54,7 @@ impl Runnable {
                     "running: {}\ntype: {}\ncommand: {}\npath: {:?}\n",
                     self.name, self.params, params.command, self.path
                 );
-
-            },
+            }
             _ => {
                 println!(
                     "running: {}\ntype: {}\npath: {:?}\n",

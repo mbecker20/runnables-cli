@@ -121,6 +121,35 @@ impl State {
         }
     }
 
+    pub fn on_b(&mut self) -> bool {
+        match &self.runnables[self.selected].params {
+            RunnableParams::Rust(_) => {
+                self.on_enter();
+                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
+                    command: RustCommand::Build,
+                    args: None,
+                });
+                true
+            }
+            _ => false,
+        }
+    }
+
+    #[allow(non_snake_case)]
+    pub fn on_B(&mut self) -> bool {
+        match &self.runnables[self.selected].params {
+            RunnableParams::Rust(_) => {
+                self.on_enter();
+                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
+                    command: RustCommand::BuildRelease,
+                    args: None,
+                });
+                true
+            }
+            _ => false,
+        }
+    }
+
     #[allow(non_snake_case)]
     pub fn on_C(&mut self) -> bool {
         match &self.runnables[self.selected].params {

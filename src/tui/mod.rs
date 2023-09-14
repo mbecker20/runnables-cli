@@ -78,6 +78,16 @@ fn render_loop(
                                 break;
                             }
                         }
+                        'b' => {
+                            if state.on_b() {
+                                break;
+                            }
+                        }
+                        'B' => {
+                            if state.on_B() {
+                                break;
+                            }
+                        }
                         _ => {}
                     },
                     KeyCode::Up => state.on_up(),

@@ -60,5 +60,3 @@ pub fn absolute_path(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
 //     });
 //     siv
 // }
-
-

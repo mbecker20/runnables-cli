@@ -19,6 +19,8 @@ pub enum RustCommand {
     #[default]
     RunDebug,
     RunRelease,
+    Build,
+    BuildRelease,
     Test,
     Fmt,
     Check,
@@ -34,6 +36,8 @@ impl Display for RustCommand {
             RustCommand::Fmt => "cargo fmt",
             RustCommand::Check => "cargo check",
             RustCommand::Clippy => "cargo clippy",
+            RustCommand::Build => "cargo build",
+            RustCommand::BuildRelease => "cargo build --release",
         };
         f.write_str(d)
     }
@@ -88,11 +92,7 @@ impl RunRunnable for Rust {
             Some(args) => format!(" -- {args}"),
             None => String::new(),
         };
-        format!(
-            "cd {} && {}{args}",
-            runnable.path.display(),
-            params.command
-        )
+        format!("cd {} && {}{args}", runnable.path.display(), params.command)
     }
 }
 

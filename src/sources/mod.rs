@@ -1,11 +1,14 @@
 use std::path::Path;
 
-use crate::{types::{Runnable, RunnableParams}, runnables::{FindRunnables, RunRunnable}};
+use crate::{
+    runnables::{FindRunnables, RunRunnable},
+    types::{Runnable, RunnableParams},
+};
 
-use self::{rust::Rust, runfile::RunFile};
+use self::{runfile::RunFile, rust::Rust};
 
-pub mod rust;
 pub mod runfile;
+pub mod rust;
 
 pub fn get_runnables(path: &Path) -> Vec<Runnable> {
     let mut runnables = Vec::new();
