@@ -20,7 +20,7 @@ pub fn run_runnable(runnable: Runnable) {
     match &runnable.params {
         RunnableParams::RunFile(params) => RunFile::run(&runnable, params),
         RunnableParams::Rust(params) => Rust::run(&runnable, params),
-        RunnableParams::Javascript() => todo!(),
+        // RunnableParams::Javascript() => todo!(),
         RunnableParams::None => {
             println!("got NONE runnable")
         }

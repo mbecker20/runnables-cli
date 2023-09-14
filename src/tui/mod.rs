@@ -53,6 +53,31 @@ fn render_loop(
                         'q' => break,
                         'k' => state.on_up(),
                         'j' => state.on_down(),
+                        'r' => {
+                            if state.on_r() {
+                                break;
+                            }
+                        }
+                        't' => {
+                            if state.on_t() {
+                                break;
+                            }
+                        }
+                        'f' => {
+                            if state.on_f() {
+                                break;
+                            }
+                        }
+                        'c' => {
+                            if state.on_c() {
+                                break;
+                            }
+                        }
+                        'C' => {
+                            if state.on_C() {
+                                break;
+                            }
+                        }
                         _ => {}
                     },
                     KeyCode::Up => state.on_up(),

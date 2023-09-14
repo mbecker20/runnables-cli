@@ -40,6 +40,7 @@ impl FindRunnables for RunFile {
                 name,
                 description: item.description,
                 path: path.join(item.path),
+                index: 0,
                 params: RunnableParams::RunFile(RunFileParams { cmd: item.cmd }),
             })
             .collect();

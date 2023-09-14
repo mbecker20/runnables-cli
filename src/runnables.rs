@@ -23,14 +23,12 @@ pub trait FindRunnables {
         if entries.is_err() {
             return runnables;
         }
-        for entry in entries.unwrap() {
-            if let Ok(entry) = entry {
-                if let Ok(metadata) = entry.metadata() {
-                    if metadata.is_dir() {
-                        let path = entry.path();
-                        if !ignore_dir(&path) {
-                            runnables.extend(Self::find_runnables(&path));
-                        }
+        for entry in entries.unwrap().flatten() {
+            if let Ok(metadata) = entry.metadata() {
+                if metadata.is_dir() {
+                    let path = entry.path();
+                    if !ignore_dir(&path) {
+                        runnables.extend(Self::find_runnables(&path));
                     }
                 }
             }

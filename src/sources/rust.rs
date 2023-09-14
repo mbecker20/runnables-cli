@@ -10,8 +10,8 @@ use crate::{
 
 #[derive(Debug, Clone, Default)]
 pub struct RustRunnableParams {
-    command: RustCommand,
-    args: Option<String>,
+    pub command: RustCommand,
+    pub args: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -28,12 +28,12 @@ pub enum RustCommand {
 impl Display for RustCommand {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let d = match self {
-            RustCommand::RunDebug => "run",
-            RustCommand::RunRelease => "run --release",
-            RustCommand::Test => "test",
-            RustCommand::Fmt => "fmt",
-            RustCommand::Check => "check",
-            RustCommand::Clippy => "clippy",
+            RustCommand::RunDebug => "cargo run",
+            RustCommand::RunRelease => "cargo run --release",
+            RustCommand::Test => "cargo test",
+            RustCommand::Fmt => "cargo fmt",
+            RustCommand::Check => "cargo check",
+            RustCommand::Clippy => "cargo clippy",
         };
         f.write_str(d)
     }
@@ -74,6 +74,7 @@ impl FindRunnables for Rust {
             name: cargo_toml.package.name,
             description: cargo_toml.package.description,
             path: path.to_owned(),
+            index: 0,
             params: RunnableParams::Rust(Default::default()),
         }])
     }
@@ -88,7 +89,7 @@ impl RunRunnable for Rust {
             None => String::new(),
         };
         format!(
-            "cd {} && cargo {}{args}",
+            "cd {} && {}{args}",
             runnable.path.display(),
             params.command
         )
