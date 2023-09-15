@@ -77,13 +77,13 @@ impl State {
             },
             RunnableParams::Rust(_) => {
                 let command = match key {
-                    'r' => Some(RustCommand::RunDebug),
+                    'r' => Some(RustCommand::Run),
                     'R' => Some(RustCommand::RunRelease),
                     't' => Some(RustCommand::Test),
                     'f' => Some(RustCommand::Fmt),
                     'c' => Some(RustCommand::Check),
                     'C' => Some(RustCommand::Clippy),
-                    'b' => Some(RustCommand::BuildDebug),
+                    'b' => Some(RustCommand::Build),
                     'B' => Some(RustCommand::BuildRelease),
                     _ => None,
                 };

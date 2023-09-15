@@ -17,9 +17,9 @@ pub struct RustRunnableParams {
 #[derive(Debug, Clone, Copy, Default)]
 pub enum RustCommand {
     #[default]
-    RunDebug,
+    Run,
     RunRelease,
-    BuildDebug,
+    Build,
     BuildRelease,
     Test,
     Fmt,
@@ -30,13 +30,13 @@ pub enum RustCommand {
 impl Display for RustCommand {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let d = match self {
-            RustCommand::RunDebug => "cargo run",
+            RustCommand::Run => "cargo run",
             RustCommand::RunRelease => "cargo run --release",
             RustCommand::Test => "cargo test",
             RustCommand::Fmt => "cargo fmt",
             RustCommand::Check => "cargo check",
             RustCommand::Clippy => "cargo clippy",
-            RustCommand::BuildDebug => "cargo build",
+            RustCommand::Build => "cargo build",
             RustCommand::BuildRelease => "cargo build --release",
         };
         f.write_str(d)
