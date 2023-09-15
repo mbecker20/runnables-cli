@@ -2,7 +2,9 @@ use std::{fmt::Display, path::PathBuf};
 
 use derive_variants::EnumVariants;
 
-use crate::sources::{runfile::RunFileParams, rust::RustRunnableParams};
+use crate::sources::{
+    javascript::JavascriptRunnableParams, runfile::RunFileParams, rust::RustRunnableParams,
+};
 
 #[derive(Clone, Debug, Default)]
 pub struct Runnable {
@@ -20,7 +22,7 @@ pub enum RunnableParams {
     None,
     RunFile(RunFileParams),
     Rust(RustRunnableParams),
-    // Javascript(),
+    Javascript(JavascriptRunnableParams),
 }
 
 impl Display for RunnableParams {
@@ -28,7 +30,7 @@ impl Display for RunnableParams {
         let d = match self {
             RunnableParams::Rust(_) => "rust",
             RunnableParams::RunFile(_) => "runfile",
-            // RunnableParams::Javascript() => "js",
+            RunnableParams::Javascript(_) => "javascript",
             RunnableParams::None => "none",
         };
         f.write_str(d)
@@ -41,7 +43,7 @@ impl From<&RunnableParams> for RunnableParamsVariant {
             RunnableParams::None => RunnableParamsVariant::None,
             RunnableParams::Rust(_) => RunnableParamsVariant::Rust,
             RunnableParams::RunFile(_) => RunnableParamsVariant::RunFile,
-            // RunnableParams::Javascript() => RunnableParamsVariant::Javascript,
+            RunnableParams::Javascript(_) => RunnableParamsVariant::Javascript,
         }
     }
 }

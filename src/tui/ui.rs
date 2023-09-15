@@ -79,6 +79,17 @@ fn render_list<B: Backend>(frame: &mut Frame<B>, state: &State, layout: &[Rect])
         lines.push(Line::from(""));
     }
 
+    let javascript_runnables = state.get_runnables_variants(RunnableParamsVariant::Javascript);
+    if !javascript_runnables.is_empty() {
+        lines.push(Line::from("---------- javascript ---------"));
+        // lines.push(Line::from(""));
+        for runnable in javascript_runnables {
+            let line = runnable_line(runnable, runnable.index == state.selected);
+            lines.push(line);
+        }
+        lines.push(Line::from(""));
+    }
+
     // for (index, runnable) in state.runnables.iter().enumerate() {
     //     let line = runnable_line(runnable, index == state.selected);
     //     lines.push(line);
@@ -161,6 +172,18 @@ fn keypress_helper(variant: RunnableParamsVariant) -> Vec<Line<'static>> {
             Line::from(vec![
                 Span::styled("r", Style::default().bold().light_blue()),
                 Span::from(": run"),
+            ]),
+        ],
+        RunnableParamsVariant::Javascript => vec![
+            // Line::from("actions:"),
+            // Line::from(""),
+            Line::from(vec![
+                Span::styled("y", Style::default().bold().light_blue()),
+                Span::from(": yarn"),
+            ]),
+            Line::from(vec![
+                Span::styled("n", Style::default().bold().light_blue()),
+                Span::from(": npm"),
             ]),
         ],
         RunnableParamsVariant::Rust => vec![

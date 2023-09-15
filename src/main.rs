@@ -27,7 +27,7 @@ fn main() -> anyhow::Result<()> {
     if state.runnables.is_empty() {
         println!("no runnables found 🧐");
         wait_for_enter()?;
-        return Ok(())
+        return Ok(());
     }
 
     match tui::run(&mut state) {

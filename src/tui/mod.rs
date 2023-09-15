@@ -54,14 +54,18 @@ fn render_loop(
                         'q' => break,
                         'k' => state.on_up(),
                         'j' => state.on_down(),
-                        key => if state.handle_keypress(key) {
-                            break;
+                        key => {
+                            if state.handle_keypress(key) {
+                                break;
+                            }
                         }
                     },
                     KeyCode::Up => state.on_up(),
                     KeyCode::Down => state.on_down(),
-                    KeyCode::Enter => if state.handle_keypress('r') {
-                        break;
+                    KeyCode::Enter => {
+                        if state.handle_keypress('r') {
+                            break;
+                        }
                     }
                     KeyCode::Backspace => {}
                     KeyCode::Left => {}

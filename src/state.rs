@@ -6,6 +6,7 @@ use crate::{
     helpers::absolute_path,
     sources::{
         get_runnables,
+        javascript::{JavascriptCommand, JavascriptRunnableParams},
         rust::{RustCommand, RustRunnableParams},
     },
     types::{Runnable, RunnableParams, RunnableParamsVariant},
@@ -75,6 +76,21 @@ impl State {
                 }
                 _ => false,
             },
+            RunnableParams::Javascript(_) => {
+                let command = match key {
+                    'y' => Some(JavascriptCommand::Yarn),
+                    'n' => Some(JavascriptCommand::Npm),
+                    _ => None,
+                };
+                if let Some(command) = command {
+                    self.set_runnable();
+                    self.runnable.params =
+                        RunnableParams::Javascript(JavascriptRunnableParams { command });
+                    true
+                } else {
+                    false
+                }
+            }
             RunnableParams::Rust(_) => {
                 let command = match key {
                     'r' => Some(RustCommand::Run),
