@@ -19,7 +19,7 @@ pub enum RustCommand {
     #[default]
     RunDebug,
     RunRelease,
-    Build,
+    BuildDebug,
     BuildRelease,
     Test,
     Fmt,
@@ -36,7 +36,7 @@ impl Display for RustCommand {
             RustCommand::Fmt => "cargo fmt",
             RustCommand::Check => "cargo check",
             RustCommand::Clippy => "cargo clippy",
-            RustCommand::Build => "cargo build",
+            RustCommand::BuildDebug => "cargo build",
             RustCommand::BuildRelease => "cargo build --release",
         };
         f.write_str(d)

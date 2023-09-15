@@ -50,55 +50,19 @@ fn render_loop(
         if let Some(event) = poll_event()? {
             match event {
                 Event::Key(key) => match key.code {
-                    KeyCode::Char(char) => match char {
+                    KeyCode::Char(key) => match key {
                         'q' => break,
                         'k' => state.on_up(),
                         'j' => state.on_down(),
-                        'r' => {
-                            if state.on_r() {
-                                break;
-                            }
+                        key => if state.handle_keypress(key) {
+                            break;
                         }
-                        'R' => {
-                            if state.on_R() {
-                                break;
-                            }
-                        }
-                        't' => {
-                            if state.on_t() {
-                                break;
-                            }
-                        }
-                        'f' => {
-                            if state.on_f() {
-                                break;
-                            }
-                        }
-                        'c' => {
-                            if state.on_c() {
-                                break;
-                            }
-                        }
-                        'C' => {
-                            if state.on_C() {
-                                break;
-                            }
-                        }
-                        'b' => {
-                            if state.on_b() {
-                                break;
-                            }
-                        }
-                        'B' => {
-                            if state.on_B() {
-                                break;
-                            }
-                        }
-                        _ => {}
                     },
                     KeyCode::Up => state.on_up(),
                     KeyCode::Down => state.on_down(),
-                    KeyCode::Enter => {}
+                    KeyCode::Enter => if state.handle_keypress('r') {
+                        break;
+                    }
                     KeyCode::Backspace => {}
                     KeyCode::Left => {}
                     KeyCode::Right => {}

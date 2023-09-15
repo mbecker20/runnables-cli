@@ -65,124 +65,43 @@ impl State {
         self.runnable = self.runnables[self.selected].clone();
     }
 
-    pub fn on_r(&mut self) -> bool {
+    /// returns true if should break render loop
+    pub fn handle_keypress(&mut self, key: char) -> bool {
         match &self.runnables[self.selected].params {
-            RunnableParams::RunFile(_) => {
-                self.set_runnable();
-                true
-            }
+            RunnableParams::RunFile(_) => match key {
+                'r' => {
+                    self.set_runnable();
+                    true
+                }
+                _ => false,
+            },
             RunnableParams::Rust(_) => {
-                self.set_runnable();
-                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
-                    command: RustCommand::RunDebug,
-                    args: None,
-                });
-                true
+                let command = match key {
+                    'r' => Some(RustCommand::RunDebug),
+                    'R' => Some(RustCommand::RunRelease),
+                    't' => Some(RustCommand::Test),
+                    'f' => Some(RustCommand::Fmt),
+                    'c' => Some(RustCommand::Check),
+                    'C' => Some(RustCommand::Clippy),
+                    'b' => Some(RustCommand::BuildDebug),
+                    'B' => Some(RustCommand::BuildRelease),
+                    _ => None,
+                };
+                if let Some(command) = command {
+                    self.set_runnable();
+                    self.runnable.params = RunnableParams::Rust(RustRunnableParams {
+                        command,
+                        args: None,
+                    });
+                    true
+                } else {
+                    false
+                }
             }
-            _ => false,
+            RunnableParams::None => todo!(),
         }
     }
 
-    #[allow(non_snake_case)]
-    pub fn on_R(&mut self) -> bool {
-        match &self.runnables[self.selected].params {
-            RunnableParams::Rust(_) => {
-                self.set_runnable();
-                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
-                    command: RustCommand::RunRelease,
-                    args: None,
-                });
-                true
-            }
-            _ => false,
-        }
-    }
-
-    pub fn on_t(&mut self) -> bool {
-        match &self.runnables[self.selected].params {
-            RunnableParams::Rust(_) => {
-                self.set_runnable();
-                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
-                    command: RustCommand::Test,
-                    args: None,
-                });
-                true
-            }
-            _ => false,
-        }
-    }
-
-    pub fn on_f(&mut self) -> bool {
-        match &self.runnables[self.selected].params {
-            RunnableParams::Rust(_) => {
-                self.set_runnable();
-                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
-                    command: RustCommand::Fmt,
-                    args: None,
-                });
-                true
-            }
-            _ => false,
-        }
-    }
-
-    pub fn on_c(&mut self) -> bool {
-        match &self.runnables[self.selected].params {
-            RunnableParams::Rust(_) => {
-                self.set_runnable();
-                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
-                    command: RustCommand::Check,
-                    args: None,
-                });
-                true
-            }
-            _ => false,
-        }
-    }
-
-    pub fn on_b(&mut self) -> bool {
-        match &self.runnables[self.selected].params {
-            RunnableParams::Rust(_) => {
-                self.set_runnable();
-                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
-                    command: RustCommand::Build,
-                    args: None,
-                });
-                true
-            }
-            _ => false,
-        }
-    }
-
-    #[allow(non_snake_case)]
-    pub fn on_B(&mut self) -> bool {
-        match &self.runnables[self.selected].params {
-            RunnableParams::Rust(_) => {
-                self.set_runnable();
-                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
-                    command: RustCommand::BuildRelease,
-                    args: None,
-                });
-                true
-            }
-            _ => false,
-        }
-    }
-
-    #[allow(non_snake_case)]
-    pub fn on_C(&mut self) -> bool {
-        match &self.runnables[self.selected].params {
-            RunnableParams::Rust(_) => {
-                self.set_runnable();
-                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
-                    command: RustCommand::Clippy,
-                    args: None,
-                });
-                true
-            }
-            _ => false,
-        }
-    }
     pub fn root_absolute_path(&self) -> anyhow::Result<String> {
         let path = absolute_path(&self.args.path)?.display().to_string();
         Ok(path)
