@@ -21,7 +21,6 @@ pub struct CliArgs {
 }
 
 fn main() -> anyhow::Result<()> {
-    // let root_path_display = absolute_path(&path)?.display().to_string();
     let mut state = state::State::new()?;
 
     if state.runnables.is_empty() {
