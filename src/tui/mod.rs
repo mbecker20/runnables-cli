@@ -45,9 +45,8 @@ fn render_loop(
 ) -> anyhow::Result<()> {
     let root_path = state.root_absolute_path()?;
     loop {
-        terminal.draw(|frame| {
-            ui::render(frame, state, &root_path).expect("failed to draw frame")
-        })?;
+        terminal
+            .draw(|frame| ui::render(frame, state, &root_path).expect("failed to draw frame"))?;
         if let Some(event) = poll_event()? {
             match event {
                 Event::Key(key) => match key.code {
@@ -57,6 +56,11 @@ fn render_loop(
                         'j' => state.on_down(),
                         'r' => {
                             if state.on_r() {
+                                break;
+                            }
+                        }
+                        'R' => {
+                            if state.on_R() {
                                 break;
                             }
                         }
@@ -94,10 +98,7 @@ fn render_loop(
                     },
                     KeyCode::Up => state.on_up(),
                     KeyCode::Down => state.on_down(),
-                    KeyCode::Enter => {
-                        state.on_enter();
-                        break;
-                    }
+                    KeyCode::Enter => {}
                     KeyCode::Backspace => {}
                     KeyCode::Left => {}
                     KeyCode::Right => {}

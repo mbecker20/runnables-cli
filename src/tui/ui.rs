@@ -39,7 +39,7 @@ fn render_bounder<B: Backend>(frame: &mut Frame<B>, root_path: &str, frame_size:
     let border = Block::default()
         .title(Span::styled(
             "runnables-cli",
-            Style::default().cyan().bold(),
+            Style::default().light_blue().bold(),
         ))
         .title(
             Title::from(Span::styled(root_path, Style::default().bold()))
@@ -204,36 +204,3 @@ fn keypress_helper(variant: RunnableParamsVariant) -> Vec<Line<'static>> {
         }
     }
 }
-
-// fn keypress_helper(variant: RunnableParamsVariant) -> Line<'static> {
-//     match variant {
-//         RunnableParamsVariant::RunFile => Line::from(vec![
-//             Span::from("actions: "),
-//             Span::styled("enter", Style::default().bold().cyan()),
-//             Span::from(": run"),
-//         ]),
-//         RunnableParamsVariant::Rust => Line::from(vec![
-//             Span::from("actions: "),
-//             Span::styled("enter", Style::default().bold().cyan()),
-//             Span::from(": run, "),
-//             Span::styled("r", Style::default().bold().cyan()),
-//             Span::from(": run release, "),
-//             Span::styled("b", Style::default().bold().cyan()),
-//             Span::from(": build, "),
-//             Span::styled("B", Style::default().bold().cyan()),
-//             Span::from(": build release, "),
-//             Span::styled("t", Style::default().bold().cyan()),
-//             Span::from(": test, "),
-//             Span::styled("c", Style::default().bold().cyan()),
-//             Span::from(": check, "),
-//             Span::styled("C", Style::default().bold().cyan()),
-//             Span::from(": clippy, "),
-//             Span::styled("f", Style::default().bold().cyan()),
-//             Span::from(": format, "),
-//         ]),
-//         // RunnableParamsVariant::Javascript => todo!(),
-//         RunnableParamsVariant::None => {
-//             panic!("tried to get keypress helpers for None variant")
-//         }
-//     }
-// }

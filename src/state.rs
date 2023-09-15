@@ -61,14 +61,33 @@ impl State {
         self.selected %= self.runnables.len();
     }
 
-    pub fn on_enter(&mut self) {
+    pub fn set_runnable(&mut self) {
         self.runnable = self.runnables[self.selected].clone();
     }
 
     pub fn on_r(&mut self) -> bool {
         match &self.runnables[self.selected].params {
+            RunnableParams::RunFile(_) => {
+                self.set_runnable();
+                true
+            }
             RunnableParams::Rust(_) => {
-                self.on_enter();
+                self.set_runnable();
+                self.runnable.params = RunnableParams::Rust(RustRunnableParams {
+                    command: RustCommand::RunDebug,
+                    args: None,
+                });
+                true
+            }
+            _ => false,
+        }
+    }
+
+    #[allow(non_snake_case)]
+    pub fn on_R(&mut self) -> bool {
+        match &self.runnables[self.selected].params {
+            RunnableParams::Rust(_) => {
+                self.set_runnable();
                 self.runnable.params = RunnableParams::Rust(RustRunnableParams {
                     command: RustCommand::RunRelease,
                     args: None,
@@ -82,7 +101,7 @@ impl State {
     pub fn on_t(&mut self) -> bool {
         match &self.runnables[self.selected].params {
             RunnableParams::Rust(_) => {
-                self.on_enter();
+                self.set_runnable();
                 self.runnable.params = RunnableParams::Rust(RustRunnableParams {
                     command: RustCommand::Test,
                     args: None,
@@ -96,7 +115,7 @@ impl State {
     pub fn on_f(&mut self) -> bool {
         match &self.runnables[self.selected].params {
             RunnableParams::Rust(_) => {
-                self.on_enter();
+                self.set_runnable();
                 self.runnable.params = RunnableParams::Rust(RustRunnableParams {
                     command: RustCommand::Fmt,
                     args: None,
@@ -110,7 +129,7 @@ impl State {
     pub fn on_c(&mut self) -> bool {
         match &self.runnables[self.selected].params {
             RunnableParams::Rust(_) => {
-                self.on_enter();
+                self.set_runnable();
                 self.runnable.params = RunnableParams::Rust(RustRunnableParams {
                     command: RustCommand::Check,
                     args: None,
@@ -124,7 +143,7 @@ impl State {
     pub fn on_b(&mut self) -> bool {
         match &self.runnables[self.selected].params {
             RunnableParams::Rust(_) => {
-                self.on_enter();
+                self.set_runnable();
                 self.runnable.params = RunnableParams::Rust(RustRunnableParams {
                     command: RustCommand::Build,
                     args: None,
@@ -139,7 +158,7 @@ impl State {
     pub fn on_B(&mut self) -> bool {
         match &self.runnables[self.selected].params {
             RunnableParams::Rust(_) => {
-                self.on_enter();
+                self.set_runnable();
                 self.runnable.params = RunnableParams::Rust(RustRunnableParams {
                     command: RustCommand::BuildRelease,
                     args: None,
@@ -154,7 +173,7 @@ impl State {
     pub fn on_C(&mut self) -> bool {
         match &self.runnables[self.selected].params {
             RunnableParams::Rust(_) => {
-                self.on_enter();
+                self.set_runnable();
                 self.runnable.params = RunnableParams::Rust(RustRunnableParams {
                     command: RustCommand::Clippy,
                     args: None,
