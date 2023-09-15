@@ -24,6 +24,12 @@ fn main() -> anyhow::Result<()> {
     // let root_path_display = absolute_path(&path)?.display().to_string();
     let mut state = state::State::new()?;
 
+    if state.runnables.is_empty() {
+        println!("no runnables found 🧐");
+        wait_for_enter()?;
+        return Ok(())
+    }
+
     match tui::run(&mut state) {
         Ok(_) => {
             if let RunnableParams::None = state.runnable.params {
@@ -38,11 +44,16 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
+    wait_for_enter()?;
+
+    Ok(())
+}
+
+fn wait_for_enter() -> anyhow::Result<()> {
     println!("\nPress ENTER to close");
     let buffer = &mut [0u8];
     std::io::stdin()
         .read_exact(buffer)
         .context("failed to read ENTER")?;
-
     Ok(())
 }

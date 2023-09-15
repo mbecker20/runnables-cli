@@ -45,7 +45,9 @@ fn render_loop(
 ) -> anyhow::Result<()> {
     let root_path = state.root_absolute_path()?;
     loop {
-        terminal.draw(|frame| ui::render(frame, state, &root_path))?;
+        terminal.draw(|frame| {
+            ui::render(frame, state, &root_path).expect("failed to draw frame")
+        })?;
         if let Some(event) = poll_event()? {
             match event {
                 Event::Key(key) => match key.code {

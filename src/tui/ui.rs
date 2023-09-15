@@ -1,34 +1,50 @@
 use ratatui::{
-    prelude::{Alignment, Backend, Constraint, Direction, Layout, Margin},
+    prelude::{Alignment, Backend, Constraint, Direction, Layout, Margin, Rect},
     style::{Style, Stylize},
     text::{Line, Span},
     widgets::{
         block::{Position, Title},
-        Block, Borders, Paragraph,
+        Block, Borders, Paragraph, Wrap,
     },
     Frame,
 };
 
 use crate::{
+    helpers::runnable_path_display,
     state::State,
     types::{Runnable, RunnableParamsVariant},
 };
 
-pub fn render<B: Backend>(frame: &mut Frame<B>, state: &State, root_path: &str) {
+pub fn render<B: Backend>(
+    frame: &mut Frame<B>,
+    state: &State,
+    root_path: &str,
+) -> anyhow::Result<()> {
     let frame_size = frame.size().inner(&Margin::new(1, 1));
 
-    let selected_variant: RunnableParamsVariant = (&state.runnables[state.selected].params).into();
+    render_bounder(frame, root_path, frame_size);
 
+    let layout = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
+        .split(frame_size.inner(&Margin::new(1, 1)));
+
+    render_list(frame, state, &layout);
+    render_info(frame, state, root_path, &layout)?;
+
+    Ok(())
+}
+
+fn render_bounder<B: Backend>(frame: &mut Frame<B>, root_path: &str, frame_size: Rect) {
     let border = Block::default()
         .title(Span::styled(
             "runnables-cli",
-            Style::default().blue().bold(),
+            Style::default().cyan().bold(),
         ))
         .title(
             Title::from(Span::styled(root_path, Style::default().bold()))
                 .alignment(Alignment::Right),
         )
-        .title(Title::from(keypress_helper(selected_variant)).position(Position::Bottom))
         .title(
             Title::from(Span::styled("press 'q' to quit", Style::default().bold()))
                 .position(Position::Bottom)
@@ -36,30 +52,31 @@ pub fn render<B: Backend>(frame: &mut Frame<B>, state: &State, root_path: &str) 
         );
 
     frame.render_widget(border, frame_size);
+}
 
-    let layout = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
-        .split(frame_size.inner(&Margin::new(1, 1)));
-
+fn render_list<B: Backend>(frame: &mut Frame<B>, state: &State, layout: &[Rect]) {
     let mut lines: Vec<Line> = Default::default();
 
     let runfile_runnables = state.get_runnables_variants(RunnableParamsVariant::RunFile);
     if !runfile_runnables.is_empty() {
         lines.push(Line::from("-------- runfile ---------"));
+        // lines.push(Line::from(""));
         for runnable in runfile_runnables {
             let line = runnable_line(runnable, runnable.index == state.selected);
             lines.push(line);
         }
+        lines.push(Line::from(""));
     }
 
     let rust_runnables = state.get_runnables_variants(RunnableParamsVariant::Rust);
     if !rust_runnables.is_empty() {
         lines.push(Line::from("---------- rust ---------"));
+        // lines.push(Line::from(""));
         for runnable in rust_runnables {
             let line = runnable_line(runnable, runnable.index == state.selected);
             lines.push(line);
         }
+        lines.push(Line::from(""));
     }
 
     // for (index, runnable) in state.runnables.iter().enumerate() {
@@ -70,17 +87,6 @@ pub fn render<B: Backend>(frame: &mut Frame<B>, state: &State, root_path: &str) 
     let list = Paragraph::new(lines).block(Block::default().borders(Borders::ALL));
 
     frame.render_widget(list, layout[0]);
-
-    let description = Paragraph::new(
-        state.runnables[state.selected]
-            .description
-            .as_ref()
-            .unwrap_or(&"-- NO DESCRIPTION --".to_string())
-            .clone(),
-    )
-    .block(Block::default().title("description").borders(Borders::ALL));
-
-    frame.render_widget(description, layout[1]);
 }
 
 fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
@@ -88,8 +94,8 @@ fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
         // Span::styled(runnable.params.to_string(), Style::default().dim()),
         // Span::from(" => ").dim(),
         runnable.name.light_blue(),
-        Span::from(" => ").gray(),
-        Span::from(runnable.path.to_str().unwrap()).gray(),
+        // Span::from(" => ").gray(),
+        // Span::from(runnable.path.to_str().unwrap()).gray(),
     ]);
     if selected {
         line.patch_style(Style::default().bold().underlined());
@@ -98,33 +104,136 @@ fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
     line
 }
 
-fn keypress_helper(variant: RunnableParamsVariant) -> Line<'static> {
+fn render_info<B: Backend>(
+    frame: &mut Frame<B>,
+    state: &State,
+    root_path: &str,
+    layout: &[Rect],
+) -> anyhow::Result<()> {
+    let mut lines: Vec<Line> = Vec::new();
+
+    let selected = &state.runnables[state.selected];
+
+    lines.push(Line::from(vec![
+        Span::from("name: "),
+        Span::from(&selected.name).light_blue().bold(),
+    ]));
+
+    let path = runnable_path_display(root_path, &selected.path)?;
+    lines.push(Line::from(vec![
+        Span::from("path: "),
+        Span::from(path).light_blue().bold(),
+    ]));
+
+    lines.push(Line::from(vec![
+        Span::from("type: "),
+        Span::from(format!("{}", selected.params))
+            .light_blue()
+            .bold(),
+    ]));
+
+    let description = selected
+        .description
+        .as_ref()
+        .unwrap_or(&"-- NO DESCRIPTION --".to_string())
+        .clone();
+    lines.push(Line::from(""));
+    lines.push(Line::from(description));
+
+    let selected_variant: RunnableParamsVariant = (&selected.params).into();
+    lines.push(Line::from(""));
+    lines.extend(keypress_helper(selected_variant));
+
+    let info = Paragraph::new(lines)
+        .block(Block::default().title("info").borders(Borders::ALL))
+        .wrap(Wrap { trim: true });
+
+    frame.render_widget(info, layout[1]);
+
+    Ok(())
+}
+
+fn keypress_helper(variant: RunnableParamsVariant) -> Vec<Line<'static>> {
     match variant {
-        RunnableParamsVariant::RunFile => Line::from(vec![
-            Span::styled("enter", Style::default().bold().blue()),
-            Span::from(": run"),
-        ]),
-        RunnableParamsVariant::Rust => Line::from(vec![
-            Span::styled("enter", Style::default().bold().blue()),
-            Span::from(": run, "),
-            Span::styled("r", Style::default().bold().blue()),
-            Span::from(": run release, "),
-            Span::styled("b", Style::default().bold().blue()),
-            Span::from(": build, "),
-            Span::styled("B", Style::default().bold().blue()),
-            Span::from(": build release, "),
-            Span::styled("t", Style::default().bold().blue()),
-            Span::from(": test, "),
-            Span::styled("c", Style::default().bold().blue()),
-            Span::from(": check, "),
-            Span::styled("C", Style::default().bold().blue()),
-            Span::from(": clippy, "),
-            Span::styled("f", Style::default().bold().blue()),
-            Span::from(": format, "),
-        ]),
-        // RunnableParamsVariant::Javascript => todo!(),
+        RunnableParamsVariant::RunFile => vec![
+            // Line::from("actions:"),
+            // Line::from(""),
+            Line::from(vec![
+                Span::styled("r", Style::default().bold().light_blue()),
+                Span::from(": run"),
+            ]),
+        ],
+        RunnableParamsVariant::Rust => vec![
+            // Line::from("actions:"),
+            // Line::from(""),
+            Line::from(vec![
+                Span::styled("r", Style::default().bold().light_blue()),
+                Span::from(": run"),
+            ]),
+            Line::from(vec![
+                Span::styled("R", Style::default().bold().light_blue()),
+                Span::from(": run release"),
+            ]),
+            Line::from(vec![
+                Span::styled("b", Style::default().bold().light_blue()),
+                Span::from(": build"),
+            ]),
+            Line::from(vec![
+                Span::styled("B", Style::default().bold().light_blue()),
+                Span::from(": build release"),
+            ]),
+            Line::from(vec![
+                Span::styled("t", Style::default().bold().light_blue()),
+                Span::from(": test"),
+            ]),
+            Line::from(vec![
+                Span::styled("c", Style::default().bold().light_blue()),
+                Span::from(": check"),
+            ]),
+            Line::from(vec![
+                Span::styled("C", Style::default().bold().light_blue()),
+                Span::from(": clippy"),
+            ]),
+            Line::from(vec![
+                Span::styled("f", Style::default().bold().light_blue()),
+                Span::from(": format"),
+            ]),
+        ],
         RunnableParamsVariant::None => {
             panic!("tried to get keypress helpers for None variant")
         }
     }
 }
+
+// fn keypress_helper(variant: RunnableParamsVariant) -> Line<'static> {
+//     match variant {
+//         RunnableParamsVariant::RunFile => Line::from(vec![
+//             Span::from("actions: "),
+//             Span::styled("enter", Style::default().bold().cyan()),
+//             Span::from(": run"),
+//         ]),
+//         RunnableParamsVariant::Rust => Line::from(vec![
+//             Span::from("actions: "),
+//             Span::styled("enter", Style::default().bold().cyan()),
+//             Span::from(": run, "),
+//             Span::styled("r", Style::default().bold().cyan()),
+//             Span::from(": run release, "),
+//             Span::styled("b", Style::default().bold().cyan()),
+//             Span::from(": build, "),
+//             Span::styled("B", Style::default().bold().cyan()),
+//             Span::from(": build release, "),
+//             Span::styled("t", Style::default().bold().cyan()),
+//             Span::from(": test, "),
+//             Span::styled("c", Style::default().bold().cyan()),
+//             Span::from(": check, "),
+//             Span::styled("C", Style::default().bold().cyan()),
+//             Span::from(": clippy, "),
+//             Span::styled("f", Style::default().bold().cyan()),
+//             Span::from(": format, "),
+//         ]),
+//         // RunnableParamsVariant::Javascript => todo!(),
+//         RunnableParamsVariant::None => {
+//             panic!("tried to get keypress helpers for None variant")
+//         }
+//     }
+// }

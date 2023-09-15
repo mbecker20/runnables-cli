@@ -19,13 +19,13 @@ pub fn absolute_path(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
     Ok(absolute_path)
 }
 
-// pub fn runnable_path_display(root_path: &str, path: impl AsRef<Path>) -> anyhow::Result<String> {
-//     let res = absolute_path(path)?
-//         .display()
-//         .to_string()
-//         .replace(root_path, "");
-//     Ok(res)
-// }
+pub fn runnable_path_display(root_path: &str, path: impl AsRef<Path>) -> anyhow::Result<String> {
+    let res = absolute_path(path)?
+        .display()
+        .to_string()
+        .replace(root_path, ".");
+    Ok(res)
+}
 
 // pub fn make_cursive_app() -> CursiveRunnable {
 //     let mut siv = cursive::default();
