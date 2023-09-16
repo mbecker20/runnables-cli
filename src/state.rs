@@ -91,7 +91,7 @@ impl State {
                     false
                 }
             }
-            RunnableParams::Rust(_) => {
+            RunnableParams::Rust(params) => {
                 let command = match key {
                     'r' => Some(RustCommand::Run),
                     'R' => Some(RustCommand::RunRelease),
@@ -101,12 +101,15 @@ impl State {
                     'C' => Some(RustCommand::Clippy),
                     'b' => Some(RustCommand::Build),
                     'B' => Some(RustCommand::BuildRelease),
+                    'p' => Some(RustCommand::Publish),
                     _ => None,
                 };
+                let is_lib = params.is_lib;
                 if let Some(command) = command {
                     self.set_runnable();
                     self.runnable.params = RunnableParams::Rust(RustRunnableParams {
                         command,
+                        is_lib,
                         args: None,
                     });
                     true

@@ -28,7 +28,13 @@ pub enum RunnableParams {
 impl Display for RunnableParams {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let d = match self {
-            RunnableParams::Rust(_) => "rust",
+            RunnableParams::Rust(params) => {
+                if params.is_lib {
+                    "rust (lib)"
+                } else {
+                    "rust (bin)"
+                }
+            }
             RunnableParams::RunFile(_) => "runfile",
             RunnableParams::Javascript(_) => "javascript",
             RunnableParams::None => "none",

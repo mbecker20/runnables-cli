@@ -1,6 +1,6 @@
 use std::{fmt::Display, fs, path::Path};
 
-use anyhow::{anyhow, Context};
+use anyhow::anyhow;
 use serde::Deserialize;
 
 use crate::{
@@ -11,6 +11,7 @@ use crate::{
 #[derive(Debug, Clone, Default)]
 pub struct RustRunnableParams {
     pub command: RustCommand,
+    pub is_lib: bool,
     pub args: Option<String>,
 }
 
@@ -25,6 +26,7 @@ pub enum RustCommand {
     Fmt,
     Check,
     Clippy,
+    Publish,
 }
 
 impl Display for RustCommand {
@@ -38,6 +40,7 @@ impl Display for RustCommand {
             RustCommand::Clippy => "cargo clippy",
             RustCommand::Build => "cargo build",
             RustCommand::BuildRelease => "cargo build --release",
+            RustCommand::Publish => "cargo publish",
         };
         f.write_str(d)
     }
@@ -58,29 +61,45 @@ pub struct Rust;
 
 impl FindRunnables for Rust {
     fn find_runnable(path: &Path) -> anyhow::Result<Vec<Runnable>> {
-        let metadata = path
-            .metadata()
-            .context(format!("could not get directory metadata: {path:?}"))?;
+        let metadata = path.metadata()?;
         if !metadata.is_dir() {
             return Err(anyhow!("path is not directory"));
         }
-        let is_runnable = fs::metadata(path.join("src/main.rs"))
-            .context(format!("could not find src/main.rs: {path:?}"))?
-            .is_file();
-        if !is_runnable {
-            return Err(anyhow!("src/main.rs is not a file: {path:?}"));
+        let cargo_toml_contents = fs::read_to_string(path.join("Cargo.toml"))?;
+        let CargoToml {
+            package: CargoTomlPackage { name, description },
+        } = toml::from_str(&cargo_toml_contents)?;
+
+        let mut runnables: Vec<Runnable> = Default::default();
+
+        if let Ok(lib) = fs::metadata(path.join("src/lib.rs")) {
+            if lib.is_file() {
+                runnables.push(Runnable {
+                    name: name.clone(),
+                    description: description.clone(),
+                    path: path.to_owned(),
+                    index: 0,
+                    params: RunnableParams::Rust(RustRunnableParams {
+                        is_lib: true,
+                        ..Default::default()
+                    }),
+                })
+            }
         }
-        let cargo_toml_contents = fs::read_to_string(path.join("Cargo.toml"))
-            .context(format!("directory does not include Cargo.toml: {path:?}"))?;
-        let cargo_toml: CargoToml = toml::from_str(&cargo_toml_contents)
-            .context(format!("failed to parse Cargo.toml: {path:?}"))?;
-        Ok(vec![Runnable {
-            name: cargo_toml.package.name,
-            description: cargo_toml.package.description,
-            path: path.to_owned(),
-            index: 0,
-            params: RunnableParams::Rust(Default::default()),
-        }])
+
+        if let Ok(bin) = fs::metadata(path.join("src/main.rs")) {
+            if bin.is_file() {
+                runnables.push(Runnable {
+                    name: name.clone(),
+                    description: description.clone(),
+                    path: path.to_owned(),
+                    index: 0,
+                    params: RunnableParams::Rust(Default::default()),
+                })
+            }
+        }
+
+        Ok(runnables)
     }
 }
 
