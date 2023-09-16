@@ -30,7 +30,10 @@ pub enum RustCommand {
 }
 
 impl Display for RustCommand {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> std::fmt::Result {
         let d = match self {
             RustCommand::Run => "cargo run",
             RustCommand::RunRelease => "cargo run --release",
@@ -65,7 +68,8 @@ impl FindRunnables for Rust {
         if !metadata.is_dir() {
             return Err(anyhow!("path is not directory"));
         }
-        let cargo_toml_contents = fs::read_to_string(path.join("Cargo.toml"))?;
+        let cargo_toml_contents =
+            fs::read_to_string(path.join("Cargo.toml"))?;
         let CargoToml {
             package: CargoTomlPackage { name, description },
         } = toml::from_str(&cargo_toml_contents)?;
@@ -79,10 +83,12 @@ impl FindRunnables for Rust {
                     description: description.clone(),
                     path: path.to_owned(),
                     index: 0,
-                    params: RunnableParams::Rust(RustRunnableParams {
-                        is_lib: true,
-                        ..Default::default()
-                    }),
+                    params: RunnableParams::Rust(
+                        RustRunnableParams {
+                            is_lib: true,
+                            ..Default::default()
+                        },
+                    ),
                 })
             }
         }
@@ -111,7 +117,11 @@ impl RunRunnable for Rust {
             Some(args) => format!(" -- {args}"),
             None => String::new(),
         };
-        format!("cd {} && {}{args}", runnable.path.display(), params.command)
+        format!(
+            "cd {} && {}{args}",
+            runnable.path.display(),
+            params.command
+        )
     }
 }
 

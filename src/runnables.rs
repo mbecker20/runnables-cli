@@ -19,7 +19,8 @@ pub trait FindRunnables {
         if let Ok(_runnables) = Self::find_runnable(path) {
             runnables.extend(_runnables);
         }
-        let entries = fs::read_dir(path).context(format!("failed to read path: {path:?}"));
+        let entries = fs::read_dir(path)
+            .context(format!("failed to read path: {path:?}"));
         if entries.is_err() {
             return runnables;
         }

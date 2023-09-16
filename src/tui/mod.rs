@@ -5,9 +5,14 @@ use std::{
 
 use anyhow::Context;
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{
+        self, DisableMouseCapture, EnableMouseCapture, Event,
+    },
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{
+        disable_raw_mode, enable_raw_mode, EnterAlternateScreen,
+        LeaveAlternateScreen,
+    },
 };
 use ratatui::{prelude::CrosstermBackend, Terminal};
 
@@ -45,41 +50,14 @@ fn render_loop(
 ) -> anyhow::Result<()> {
     let root_path = state.root_absolute_path()?;
     loop {
-        terminal
-            .draw(|frame| ui::render(frame, state, &root_path).expect("failed to draw frame"))?;
+        terminal.draw(|frame| {
+            ui::render(frame, state, &root_path)
+                .expect("failed to draw frame")
+        })?;
         if let Some(event) = poll_event()? {
-            match event {
-                Event::Key(key) => match key.code {
-                    KeyCode::Char(key) => match key {
-                        'q' => break,
-                        'k' => state.on_up(),
-                        'j' => state.on_down(),
-                        key => {
-                            if state.handle_keypress(key) {
-                                break;
-                            }
-                        }
-                    },
-                    KeyCode::Up => state.on_up(),
-                    KeyCode::Down => state.on_down(),
-                    KeyCode::Enter => {
-                        if state.handle_keypress('r') {
-                            break;
-                        }
-                    }
-                    KeyCode::Backspace => {}
-                    KeyCode::Left => {}
-                    KeyCode::Right => {}
-                    KeyCode::Tab => {}
-                    KeyCode::Esc => {}
-                    KeyCode::Modifier(_) => {}
-                    _ => {}
-                },
-                Event::FocusGained => {}
-                Event::FocusLost => {}
-                Event::Mouse(_) => {}
-                Event::Paste(_) => {}
-                Event::Resize(_, _) => {}
+            let should_break = state.handle_event(event); 
+            if should_break {
+                break;
             }
         }
     }
@@ -87,7 +65,9 @@ fn render_loop(
 }
 
 fn poll_event() -> anyhow::Result<Option<Event>> {
-    if event::poll(Duration::from_millis(250)).context("event poll failed")? {
+    if event::poll(Duration::from_millis(250))
+        .context("event poll failed")?
+    {
         let event = event::read().context("event read failed")?;
         Ok(Some(event))
     } else {

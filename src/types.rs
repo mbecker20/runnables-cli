@@ -3,7 +3,8 @@ use std::{fmt::Display, path::PathBuf};
 use derive_variants::EnumVariants;
 
 use crate::sources::{
-    javascript::JavascriptRunnableParams, runfile::RunFileParams, rust::RustRunnableParams,
+    javascript::JavascriptRunnableParams, runfile::RunFileParams,
+    rust::RustRunnableParams,
 };
 
 #[derive(Clone, Debug, Default)]
@@ -26,7 +27,10 @@ pub enum RunnableParams {
 }
 
 impl Display for RunnableParams {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> std::fmt::Result {
         let d = match self {
             RunnableParams::Rust(params) => {
                 if params.is_lib {
@@ -48,8 +52,12 @@ impl From<&RunnableParams> for RunnableParamsVariant {
         match params {
             RunnableParams::None => RunnableParamsVariant::None,
             RunnableParams::Rust(_) => RunnableParamsVariant::Rust,
-            RunnableParams::RunFile(_) => RunnableParamsVariant::RunFile,
-            RunnableParams::Javascript(_) => RunnableParamsVariant::Javascript,
+            RunnableParams::RunFile(_) => {
+                RunnableParamsVariant::RunFile
+            }
+            RunnableParams::Javascript(_) => {
+                RunnableParamsVariant::Javascript
+            }
         }
     }
 }
@@ -58,10 +66,7 @@ impl Runnable {
     pub fn log_info(&self) {
         match &self.params {
             RunnableParams::Rust(params) => {
-                println!(
-                    "running: {}\ntype: {}\ncommand: {}\npath: {:?}\n",
-                    self.name, self.params, params.command, self.path
-                );
+                println!("running: {}\ntype: {}\ncommand: {}\npath: {:?}\n", self.name, self.params, params.command, self.path);
             }
             _ => {
                 println!(

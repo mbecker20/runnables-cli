@@ -1,5 +1,8 @@
 use ratatui::{
-    prelude::{Alignment, Backend, Constraint, Direction, Layout, Margin, Rect},
+    prelude::{
+        Alignment, Backend, Constraint, Direction, Layout, Margin,
+        Rect,
+    },
     style::{Style, Stylize},
     text::{Line, Span},
     widgets::{
@@ -24,67 +27,113 @@ pub fn render<B: Backend>(
 
     render_bounder(frame, root_path, frame_size);
 
-    let layout = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
-        .split(frame_size.inner(&Margin::new(1, 1)));
+    let v_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(vec![Constraint::Length(4), Constraint::Min(0)])
+        .margin(1)
+        .split(frame_size);
 
-    render_list(frame, state, &layout);
-    render_info(frame, state, root_path, &layout)?;
+    render_search(frame, state, v_layout[0]);
+
+    let h_layout = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(vec![
+            Constraint::Percentage(50),
+            Constraint::Percentage(50),
+        ])
+        .split(v_layout[1]);
+
+    render_list(frame, state, &h_layout);
+    render_info(frame, state, root_path, &h_layout)?;
 
     Ok(())
 }
 
-fn render_bounder<B: Backend>(frame: &mut Frame<B>, root_path: &str, frame_size: Rect) {
+fn render_bounder<B: Backend>(
+    frame: &mut Frame<B>,
+    root_path: &str,
+    frame_size: Rect,
+) {
     let border = Block::default()
         .title(Span::styled(
             "runnables-cli",
             Style::default().light_blue().bold(),
         ))
         .title(
-            Title::from(Span::styled(root_path, Style::default().bold()))
-                .alignment(Alignment::Right),
+            Title::from(Span::styled(
+                root_path,
+                Style::default().bold(),
+            ))
+            .alignment(Alignment::Right),
         )
         .title(
-            Title::from(Span::styled("press 'q' to quit", Style::default().bold()))
-                .position(Position::Bottom)
-                .alignment(Alignment::Right),
+            Title::from(Span::styled(
+                "press 'q' to quit",
+                Style::default().bold(),
+            ))
+            .position(Position::Bottom)
+            .alignment(Alignment::Right),
         );
 
     frame.render_widget(border, frame_size);
 }
 
-fn render_list<B: Backend>(frame: &mut Frame<B>, state: &State, layout: &[Rect]) {
+fn render_search<B: Backend>(
+    frame: &mut Frame<B>,
+    state: &State,
+    frame_size: Rect,
+) {
+    let block = Block::default().borders(Borders::ALL);
+    frame.render_widget(block, frame_size);
+}
+
+fn render_list<B: Backend>(
+    frame: &mut Frame<B>,
+    state: &State,
+    layout: &[Rect],
+) {
     let mut lines: Vec<Line> = Default::default();
 
-    let runfile_runnables = state.get_runnables_variants(RunnableParamsVariant::RunFile);
+    let runfile_runnables =
+        state.get_runnables_variants(RunnableParamsVariant::RunFile);
     if !runfile_runnables.is_empty() {
         lines.push(Line::from("-------- runfile ---------"));
         // lines.push(Line::from(""));
         for runnable in runfile_runnables {
-            let line = runnable_line(runnable, runnable.index == state.selected);
+            let line = runnable_runnable(
+                runnable,
+                runnable.index == state.selected,
+            );
             lines.push(line);
         }
         lines.push(Line::from(""));
     }
 
-    let rust_runnables = state.get_runnables_variants(RunnableParamsVariant::Rust);
+    let rust_runnables =
+        state.get_runnables_variants(RunnableParamsVariant::Rust);
     if !rust_runnables.is_empty() {
         lines.push(Line::from("---------- rust ---------"));
         // lines.push(Line::from(""));
         for runnable in rust_runnables {
-            let line = runnable_line(runnable, runnable.index == state.selected);
+            let line = runnable_runnable(
+                runnable,
+                runnable.index == state.selected,
+            );
             lines.push(line);
         }
         lines.push(Line::from(""));
     }
 
-    let javascript_runnables = state.get_runnables_variants(RunnableParamsVariant::Javascript);
+    let javascript_runnables = state
+        .get_runnables_variants(RunnableParamsVariant::Javascript);
     if !javascript_runnables.is_empty() {
         lines.push(Line::from("---------- javascript ---------"));
         // lines.push(Line::from(""));
         for runnable in javascript_runnables {
-            let line = runnable_line(runnable, runnable.index == state.selected);
+            let line = runnable_runnable(
+                runnable,
+                runnable.index == state.selected,
+            );
             lines.push(line);
         }
         lines.push(Line::from(""));
@@ -95,12 +144,13 @@ fn render_list<B: Backend>(frame: &mut Frame<B>, state: &State, layout: &[Rect])
     //     lines.push(line);
     // }
 
-    let list = Paragraph::new(lines).block(Block::default().borders(Borders::ALL));
+    let list = Paragraph::new(lines)
+        .block(Block::default().borders(Borders::ALL));
 
     frame.render_widget(list, layout[0]);
 }
 
-fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
+fn runnable_runnable(runnable: &Runnable, selected: bool) -> Line {
     let mut line = Line::from(vec![
         // Span::styled(runnable.params.to_string(), Style::default().dim()),
         // Span::from(" => ").dim(),
@@ -155,7 +205,7 @@ fn render_info<B: Backend>(
     lines.extend(keypress_helper(&selected.params));
 
     let info = Paragraph::new(lines)
-        .block(Block::default().title("info").borders(Borders::ALL))
+        .block(Block::default().borders(Borders::ALL))
         .wrap(Wrap { trim: true });
 
     frame.render_widget(info, layout[1]);
@@ -169,7 +219,10 @@ fn keypress_helper(params: &RunnableParams) -> Vec<Line<'static>> {
             // Line::from("actions:"),
             // Line::from(""),
             Line::from(vec![
-                Span::styled("r", Style::default().bold().light_blue()),
+                Span::styled(
+                    "r",
+                    Style::default().bold().light_blue(),
+                ),
                 Span::from(": run"),
             ]),
         ],
@@ -177,55 +230,88 @@ fn keypress_helper(params: &RunnableParams) -> Vec<Line<'static>> {
             // Line::from("actions:"),
             // Line::from(""),
             Line::from(vec![
-                Span::styled("y", Style::default().bold().light_blue()),
+                Span::styled(
+                    "y",
+                    Style::default().bold().light_blue(),
+                ),
                 Span::from(": yarn"),
             ]),
             Line::from(vec![
-                Span::styled("n", Style::default().bold().light_blue()),
+                Span::styled(
+                    "n",
+                    Style::default().bold().light_blue(),
+                ),
                 Span::from(": npm"),
             ]),
         ],
         RunnableParams::Rust(params) => {
             let mut first = if params.is_lib {
                 vec![Line::from(vec![
-                    Span::styled("p", Style::default().bold().light_blue()),
+                    Span::styled(
+                        "p",
+                        Style::default().bold().light_blue(),
+                    ),
                     Span::from(": publish"),
                 ])]
             } else {
                 vec![
                     Line::from(vec![
-                        Span::styled("r", Style::default().bold().light_blue()),
+                        Span::styled(
+                            "r",
+                            Style::default().bold().light_blue(),
+                        ),
                         Span::from(": run"),
                     ]),
                     Line::from(vec![
-                        Span::styled("R", Style::default().bold().light_blue()),
+                        Span::styled(
+                            "R",
+                            Style::default().bold().light_blue(),
+                        ),
                         Span::from(": run release"),
                     ]),
                 ]
             };
             let rest = vec![
                 Line::from(vec![
-                    Span::styled("b", Style::default().bold().light_blue()),
+                    Span::styled(
+                        "b",
+                        Style::default().bold().light_blue(),
+                    ),
                     Span::from(": build"),
                 ]),
                 Line::from(vec![
-                    Span::styled("B", Style::default().bold().light_blue()),
+                    Span::styled(
+                        "B",
+                        Style::default().bold().light_blue(),
+                    ),
                     Span::from(": build release"),
                 ]),
                 Line::from(vec![
-                    Span::styled("t", Style::default().bold().light_blue()),
+                    Span::styled(
+                        "t",
+                        Style::default().bold().light_blue(),
+                    ),
                     Span::from(": test"),
                 ]),
                 Line::from(vec![
-                    Span::styled("c", Style::default().bold().light_blue()),
+                    Span::styled(
+                        "c",
+                        Style::default().bold().light_blue(),
+                    ),
                     Span::from(": check"),
                 ]),
                 Line::from(vec![
-                    Span::styled("C", Style::default().bold().light_blue()),
+                    Span::styled(
+                        "C",
+                        Style::default().bold().light_blue(),
+                    ),
                     Span::from(": clippy"),
                 ]),
                 Line::from(vec![
-                    Span::styled("f", Style::default().bold().light_blue()),
+                    Span::styled(
+                        "f",
+                        Style::default().bold().light_blue(),
+                    ),
                     Span::from(": format"),
                 ]),
             ];

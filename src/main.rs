@@ -1,7 +1,5 @@
-use std::io::Read;
-
-use anyhow::Context;
 use clap::Parser;
+use helpers::wait_for_enter;
 
 use crate::{sources::run_runnable, types::RunnableParams};
 
@@ -18,6 +16,8 @@ mod types;
 pub struct CliArgs {
     #[arg(default_value_t = String::from("."))]
     path: String,
+    #[arg(short, long)]
+    search: bool,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -45,14 +45,5 @@ fn main() -> anyhow::Result<()> {
 
     wait_for_enter()?;
 
-    Ok(())
-}
-
-fn wait_for_enter() -> anyhow::Result<()> {
-    println!("\nPress ENTER to close");
-    let buffer = &mut [0u8];
-    std::io::stdin()
-        .read_exact(buffer)
-        .context("failed to read ENTER")?;
     Ok(())
 }

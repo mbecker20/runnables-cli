@@ -23,9 +23,13 @@ pub fn get_runnables(path: &Path) -> Vec<Runnable> {
 
 pub fn run_runnable(runnable: Runnable) {
     match &runnable.params {
-        RunnableParams::RunFile(params) => RunFile::run(&runnable, params),
+        RunnableParams::RunFile(params) => {
+            RunFile::run(&runnable, params)
+        }
         RunnableParams::Rust(params) => Rust::run(&runnable, params),
-        RunnableParams::Javascript(params) => Javascript::run(&runnable, params),
+        RunnableParams::Javascript(params) => {
+            Javascript::run(&runnable, params)
+        }
         RunnableParams::None => {
             println!("got NONE runnable")
         }
