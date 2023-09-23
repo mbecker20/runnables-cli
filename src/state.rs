@@ -76,22 +76,6 @@ impl State {
         Ok(path)
     }
 
-    // pub fn get_runnables_variants(
-    //     &self,
-    //     variant: RunnableParamsVariant,
-    // ) -> Vec<Rc<Runnable>> {
-    //     let search = self.search.value();
-    //     self.runnables
-    //         .iter()
-    //         .cloned()
-    //         .filter(|runnable| {
-    //             let var: RunnableParamsVariant =
-    //                 (&runnable.params).into();
-    //             var == variant && runnable.name.contains(search)
-    //         })
-    //         .collect()
-    // }
-
     fn set_mode(&mut self, mode: Mode) {
         self.mode = mode;
     }
@@ -204,7 +188,7 @@ impl State {
                 }
                 RunnableParams::None => false,
             },
-            None => false
+            None => false,
         }
     }
 
@@ -236,24 +220,33 @@ impl State {
     // ===================
 
     fn handle_search_event(&mut self, event: Event) -> bool {
-        match event {
-            Event::Key(key) => match key.code {
-                KeyCode::Tab | KeyCode::Enter => {
+        if let Event::Key(key) = event {
+            match key.code {
+                KeyCode::Enter => {
+                    return self.handle_list_keypress('r');
+                }
+                KeyCode::Tab => {
                     self.set_mode(Mode::List);
-                    false
                 }
                 KeyCode::Esc => {
-                    // self.search.with_value(value)
+                    self.search.reset();
                     self.set_mode(Mode::List);
-                    false
                 }
-                _ => {
+                KeyCode::Down => {
+                    self.select_next();
+                }
+                KeyCode::Up => {
+                    self.select_prev();
+                }
+                KeyCode::Char(_) => {
                     self.selected = 0;
                     self.search.handle_event(&Event::Key(key));
-                    false
                 }
-            },
-            _ => false,
+                _ => {
+                    self.search.handle_event(&Event::Key(key));
+                }
+            }
         }
+        false
     }
 }
