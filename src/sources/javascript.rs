@@ -10,7 +10,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Default)]
-pub struct JavascriptRunnableParams {
+pub struct JavascriptParams {
     pub command: JavascriptCommand,
 }
 
@@ -70,7 +70,7 @@ impl FindRunnables for Javascript {
 }
 
 impl RunRunnable for Javascript {
-    type Params = JavascriptRunnableParams;
+    type Params = JavascriptParams;
 
     fn command(runnable: &Runnable, params: &Self::Params) -> String {
         format!(

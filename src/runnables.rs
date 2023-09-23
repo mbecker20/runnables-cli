@@ -5,7 +5,7 @@ use run_command::run_command_pipe_to_terminal;
 
 use crate::types::Runnable;
 
-const IGNORE: [&str; 2] = ["target", "node_modules"];
+const IGNORE: [&str; 3] = ["target", "node_modules", ".git"];
 
 pub fn ignore_dir(path: &Path) -> bool {
     IGNORE.iter().any(|ignore| path.ends_with(ignore))

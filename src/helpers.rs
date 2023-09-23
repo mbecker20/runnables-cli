@@ -42,6 +42,13 @@ pub fn wait_for_enter() -> anyhow::Result<()> {
     Ok(())
 }
 
+// pub fn timestamp_ms() -> u128 {
+//     SystemTime::now()
+//         .duration_since(SystemTime::UNIX_EPOCH)
+//         .unwrap()
+//         .as_millis()
+// }
+
 // pub fn make_cursive_app() -> CursiveRunnable {
 //     let mut siv = cursive::default();
 //     siv.add_global_callback('q', |s| s.quit());

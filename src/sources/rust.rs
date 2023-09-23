@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Default)]
-pub struct RustRunnableParams {
+pub struct RustParams {
     pub command: RustCommand,
     pub is_lib: bool,
     pub args: Option<String>,
@@ -84,7 +84,7 @@ impl FindRunnables for Rust {
                     path: path.to_owned(),
                     index: 0,
                     params: RunnableParams::Rust(
-                        RustRunnableParams {
+                        RustParams {
                             is_lib: true,
                             ..Default::default()
                         },
@@ -110,7 +110,7 @@ impl FindRunnables for Rust {
 }
 
 impl RunRunnable for Rust {
-    type Params = RustRunnableParams;
+    type Params = RustParams;
 
     fn command(runnable: &Runnable, params: &Self::Params) -> String {
         let args = match &params.args {

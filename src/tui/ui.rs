@@ -3,7 +3,7 @@ use ratatui::{
         Alignment, Backend, Constraint, Direction, Layout, Margin,
         Rect,
     },
-    style::{Style, Stylize},
+    style::{Color, Style, Stylize},
     text::{Line, Span},
     widgets::{
         block::{Position, Title},
@@ -14,13 +14,13 @@ use ratatui::{
 
 use crate::{
     helpers::runnable_path_display,
-    state::State,
-    types::{Runnable, RunnableParams, RunnableParamsVariant},
+    state::{Mode, State},
+    types::{Runnable, RunnableParams},
 };
 
 pub fn render<B: Backend>(
     frame: &mut Frame<B>,
-    state: &State,
+    state: &mut State,
     root_path: &str,
 ) -> anyhow::Result<()> {
     let frame_size = frame.size().inner(&Margin::new(1, 1));
@@ -29,7 +29,7 @@ pub fn render<B: Backend>(
 
     let v_layout = Layout::default()
         .direction(Direction::Vertical)
-        .constraints(vec![Constraint::Length(4), Constraint::Min(0)])
+        .constraints(vec![Constraint::Max(3), Constraint::Min(0)])
         .margin(1)
         .split(frame_size);
 
@@ -83,77 +83,112 @@ fn render_search<B: Backend>(
     state: &State,
     frame_size: Rect,
 ) {
-    let block = Block::default().borders(Borders::ALL);
-    frame.render_widget(block, frame_size);
+    let search = Paragraph::new(state.search.value())
+        .style(match state.mode {
+            Mode::Search => Style::default().fg(state.args.color),
+            Mode::List => Style::default(),
+        })
+        .block(
+            Block::default().title("search").borders(Borders::ALL),
+        );
+    frame.render_widget(search, frame_size);
+    if state.mode == Mode::Search {
+        frame.set_cursor(
+            // Put cursor past the end of the input text
+            frame_size.x + state.search.visual_cursor() as u16 + 1,
+            // Move one line down, from the border to the input line
+            frame_size.y + 1,
+        );
+    }
 }
 
 fn render_list<B: Backend>(
     frame: &mut Frame<B>,
-    state: &State,
+    state: &mut State,
     layout: &[Rect],
 ) {
     let mut lines: Vec<Line> = Default::default();
 
-    let runfile_runnables =
-        state.get_runnables_variants(RunnableParamsVariant::RunFile);
-    if !runfile_runnables.is_empty() {
-        lines.push(Line::from("-------- runfile ---------"));
-        // lines.push(Line::from(""));
-        for runnable in runfile_runnables {
-            let line = runnable_runnable(
-                runnable,
-                runnable.index == state.selected,
-            );
-            lines.push(line);
-        }
-        lines.push(Line::from(""));
-    }
-
-    let rust_runnables =
-        state.get_runnables_variants(RunnableParamsVariant::Rust);
-    if !rust_runnables.is_empty() {
-        lines.push(Line::from("---------- rust ---------"));
-        // lines.push(Line::from(""));
-        for runnable in rust_runnables {
-            let line = runnable_runnable(
-                runnable,
-                runnable.index == state.selected,
-            );
-            lines.push(line);
-        }
-        lines.push(Line::from(""));
-    }
-
-    let javascript_runnables = state
-        .get_runnables_variants(RunnableParamsVariant::Javascript);
-    if !javascript_runnables.is_empty() {
-        lines.push(Line::from("---------- javascript ---------"));
-        // lines.push(Line::from(""));
-        for runnable in javascript_runnables {
-            let line = runnable_runnable(
-                runnable,
-                runnable.index == state.selected,
-            );
-            lines.push(line);
-        }
-        lines.push(Line::from(""));
-    }
-
-    // for (index, runnable) in state.runnables.iter().enumerate() {
-    //     let line = runnable_line(runnable, index == state.selected);
-    //     lines.push(line);
+    // let runfile_runnables =
+    //     state.get_runnables_variants(RunnableParamsVariant::RunFile);
+    // if !runfile_runnables.is_empty() {
+    //     lines.push(Line::styled("-------- runfile ---------", Style::default().white()));
+    //     // lines.push(Line::from(""));
+    //     for runnable in runfile_runnables {
+    //         let line = runnable_runnable(
+    //             runnable,
+    //             runnable.index == state.selected,
+    //         );
+    //         lines.push(line);
+    //     }
+    //     lines.push(Line::from(""));
+    // }
+    //
+    // let shell_runnables =
+    //     state.get_runnables_variants(RunnableParamsVariant::Shell);
+    // if !shell_runnables.is_empty() {
+    //     lines.push(Line::styled("-------- shell ---------", Style::default().white()));
+    //     // lines.push(Line::from(""));
+    //     for runnable in shell_runnables {
+    //         let line = runnable_runnable(
+    //             runnable,
+    //             runnable.index == state.selected,
+    //         );
+    //         lines.push(line);
+    //     }
+    //     lines.push(Line::from(""));
+    // }
+    //
+    // let rust_runnables =
+    //     state.get_runnables_variants(RunnableParamsVariant::Rust);
+    // if !rust_runnables.is_empty() {
+    //     lines.push(Line::styled("---------- rust ---------", Style::default().white()));
+    //     // lines.push(Line::from(""));
+    //     for runnable in rust_runnables {
+    //         let line = runnable_runnable(
+    //             runnable,
+    //             runnable.index == state.selected,
+    //         );
+    //         lines.push(line);
+    //     }
+    //     lines.push(Line::from(""));
+    // }
+    //
+    // let javascript_runnables = state
+    //     .get_runnables_variants(RunnableParamsVariant::Javascript);
+    // if !javascript_runnables.is_empty() {
+    //     lines.push(Line::styled("---------- javascript ---------", Style::default().white()));
+    //     // lines.push(Line::from(""));
+    //     for runnable in javascript_runnables {
+    //         let line = runnable_runnable(
+    //             runnable,
+    //             runnable.index == state.selected,
+    //         );
+    //         lines.push(line);
+    //     }
+    //     lines.push(Line::from(""));
     // }
 
-    let list = Paragraph::new(lines)
-        .block(Block::default().borders(Borders::ALL));
+    state.set_active_runnables();
+    for (index, runnable) in state.active.iter().enumerate() {
+        let line = runnable_line(runnable, index == state.selected);
+        lines.push(line);
+    }
+
+    let list = Paragraph::new(lines).block(
+        Block::default().borders(Borders::ALL).fg(match state.mode {
+            Mode::List => state.args.color,
+            Mode::Search => Color::White,
+        }),
+    );
 
     frame.render_widget(list, layout[0]);
 }
 
-fn runnable_runnable(runnable: &Runnable, selected: bool) -> Line {
+fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
     let mut line = Line::from(vec![
-        // Span::styled(runnable.params.to_string(), Style::default().dim()),
-        // Span::from(" => ").dim(),
+        Span::from(runnable.params.to_string()).dim(),
+        Span::from(" => ").dim().white(),
         runnable.name.light_blue(),
         // Span::from(" => ").gray(),
         // Span::from(runnable.path.to_str().unwrap()).gray(),
@@ -173,37 +208,40 @@ fn render_info<B: Backend>(
 ) -> anyhow::Result<()> {
     let mut lines: Vec<Line> = Vec::new();
 
-    let selected = &state.runnables[state.selected];
+    match state.active.get(state.selected) {
+        Some(selected) => {
+            lines.push(Line::from(vec![
+                Span::from("name: "),
+                Span::from(&selected.name).light_blue().bold(),
+            ]));
 
-    lines.push(Line::from(vec![
-        Span::from("name: "),
-        Span::from(&selected.name).light_blue().bold(),
-    ]));
+            let path =
+                runnable_path_display(root_path, &selected.path)?;
+            lines.push(Line::from(vec![
+                Span::from("path: "),
+                Span::from(path).light_blue().bold(),
+            ]));
 
-    let path = runnable_path_display(root_path, &selected.path)?;
-    lines.push(Line::from(vec![
-        Span::from("path: "),
-        Span::from(path).light_blue().bold(),
-    ]));
+            lines.push(Line::from(vec![
+                Span::from("type: "),
+                Span::from(format!("{}", selected.params))
+                    .light_blue()
+                    .bold(),
+            ]));
 
-    lines.push(Line::from(vec![
-        Span::from("type: "),
-        Span::from(format!("{}", selected.params))
-            .light_blue()
-            .bold(),
-    ]));
+            let description = selected
+                .description
+                .as_ref()
+                .unwrap_or(&"-- NO DESCRIPTION --".to_string())
+                .clone();
+            lines.push(Line::from(""));
+            lines.push(Line::from(description));
 
-    let description = selected
-        .description
-        .as_ref()
-        .unwrap_or(&"-- NO DESCRIPTION --".to_string())
-        .clone();
-    lines.push(Line::from(""));
-    lines.push(Line::from(description));
-
-    lines.push(Line::from(""));
-    lines.extend(keypress_helper(&selected.params));
-
+            lines.push(Line::from(""));
+            lines.extend(keypress_helper(&selected.params));
+        }
+        None => lines.push(Line::from("-- NO RUNNABLE SELECTED --")),
+    }
     let info = Paragraph::new(lines)
         .block(Block::default().borders(Borders::ALL))
         .wrap(Wrap { trim: true });
@@ -216,6 +254,17 @@ fn render_info<B: Backend>(
 fn keypress_helper(params: &RunnableParams) -> Vec<Line<'static>> {
     match params {
         RunnableParams::RunFile(_) => vec![
+            // Line::from("actions:"),
+            // Line::from(""),
+            Line::from(vec![
+                Span::styled(
+                    "r",
+                    Style::default().bold().light_blue(),
+                ),
+                Span::from(": run"),
+            ]),
+        ],
+        RunnableParams::Shell(_) => vec![
             // Line::from("actions:"),
             // Line::from(""),
             Line::from(vec![
