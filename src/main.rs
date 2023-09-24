@@ -1,6 +1,7 @@
 use clap::Parser;
 use helpers::wait_for_enter;
 use ratatui::style::Color;
+use types::RunnableParamsVariant;
 
 use crate::{sources::run_runnable, types::RunnableParams};
 
@@ -21,6 +22,8 @@ pub struct CliArgs {
     search: bool,
     #[arg(short, long, default_value_t = Color::Blue)]
     color: Color,
+    #[arg(short, long)]
+    ignore: Vec<RunnableParamsVariant>,
 }
 
 fn main() -> anyhow::Result<()> {

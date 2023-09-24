@@ -1,8 +1,12 @@
-use std::path::Path;
+use std::{
+    path::PathBuf,
+    str::FromStr,
+};
 
 use crate::{
     runnables::{FindRunnables, RunRunnable},
-    types::{Runnable, RunnableParams},
+    types::{Runnable, RunnableParams, RunnableParamsVariant},
+    CliArgs,
 };
 
 use self::{
@@ -15,15 +19,27 @@ pub mod runfile;
 pub mod rust;
 pub mod shell;
 
-pub fn get_runnables(path: &Path) -> Vec<Runnable> {
+pub fn get_runnables(
+    args: &CliArgs,
+) -> anyhow::Result<Vec<Runnable>> {
+    let path = PathBuf::from_str(&args.path)?;
+
     let mut runnables = Vec::new();
 
-    runnables.extend(RunFile::find_runnables(path));
-    runnables.extend(Shell::find_runnables(path));
-    runnables.extend(Rust::find_runnables(path));
-    runnables.extend(Javascript::find_runnables(path));
-    
-    runnables
+    if !args.ignore.contains(&RunnableParamsVariant::RunFile) {
+        runnables.extend(RunFile::find_runnables(&path));
+    }
+    if !args.ignore.contains(&RunnableParamsVariant::Shell) {
+        runnables.extend(Shell::find_runnables(&path));
+    }
+    if !args.ignore.contains(&RunnableParamsVariant::Rust) {
+        runnables.extend(Rust::find_runnables(&path));
+    }
+    if !args.ignore.contains(&RunnableParamsVariant::Javascript) {
+        runnables.extend(Javascript::find_runnables(&path));
+    }
+
+    Ok(runnables)
 }
 
 pub fn run_runnable(runnable: Runnable) {

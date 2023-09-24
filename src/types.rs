@@ -2,6 +2,7 @@ use std::{fmt::Display, path::PathBuf};
 
 use derive_variants::EnumVariants;
 use colored::Colorize;
+use clap::ValueEnum;
 
 use crate::sources::{
     javascript::JavascriptParams, runfile::RunFileParams,
@@ -18,7 +19,7 @@ pub struct Runnable {
 }
 
 #[derive(Debug, Clone, Default, EnumVariants)]
-#[variant_derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[variant_derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum RunnableParams {
     #[default]
     None,

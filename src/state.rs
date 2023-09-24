@@ -1,4 +1,4 @@
-use std::{path::PathBuf, rc::Rc, str::FromStr};
+use std::rc::Rc;
 
 use clap::Parser;
 use crossterm::event::{Event, KeyCode};
@@ -35,7 +35,7 @@ impl State {
     pub fn new() -> anyhow::Result<State> {
         let args = CliArgs::parse();
         let mut runnables =
-            get_runnables(&PathBuf::from_str(&args.path)?);
+            get_runnables(&args)?;
         runnables.iter_mut().enumerate().for_each(
             |(index, runnable)| {
                 runnable.index = index;
