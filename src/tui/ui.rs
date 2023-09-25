@@ -83,7 +83,13 @@ fn render_search<B: Backend>(
     state: &State,
     frame_size: Rect,
 ) {
-    let search = Paragraph::new(state.search.value())
+    let value = state.search.value();
+    let value = if state.mode == Mode::List && value.is_empty() {
+        "press TAB to search"
+    } else {
+        value
+    };
+    let search = Paragraph::new(value)
         .style(match state.mode {
             Mode::Search => Style::default().fg(state.args.color),
             Mode::List => Style::default(),
@@ -257,10 +263,7 @@ fn keypress_helper(params: &RunnableParams) -> Vec<Line<'static>> {
             // Line::from("actions:"),
             // Line::from(""),
             Line::from(vec![
-                Span::styled(
-                    "r",
-                    Style::default().bold().light_blue(),
-                ),
+                Span::from("r").bold().light_blue(),
                 Span::from(": run"),
             ]),
         ],
@@ -268,10 +271,7 @@ fn keypress_helper(params: &RunnableParams) -> Vec<Line<'static>> {
             // Line::from("actions:"),
             // Line::from(""),
             Line::from(vec![
-                Span::styled(
-                    "r",
-                    Style::default().bold().light_blue(),
-                ),
+                Span::from("r").bold().light_blue(),
                 Span::from(": run"),
             ]),
         ],
@@ -279,88 +279,59 @@ fn keypress_helper(params: &RunnableParams) -> Vec<Line<'static>> {
             // Line::from("actions:"),
             // Line::from(""),
             Line::from(vec![
-                Span::styled(
-                    "y",
-                    Style::default().bold().light_blue(),
-                ),
+                Span::from("y").bold().light_blue(),
                 Span::from(": yarn"),
             ]),
             Line::from(vec![
-                Span::styled(
-                    "n",
-                    Style::default().bold().light_blue(),
-                ),
+                Span::from("n").bold().light_blue(),
                 Span::from(": npm"),
             ]),
         ],
         RunnableParams::Rust(params) => {
             let mut first = if params.is_lib {
                 vec![Line::from(vec![
-                    Span::styled(
-                        "p",
-                        Style::default().bold().light_blue(),
-                    ),
+                    Span::from("p").bold().light_blue(),
                     Span::from(": publish"),
                 ])]
             } else {
                 vec![
                     Line::from(vec![
-                        Span::styled(
-                            "r",
-                            Style::default().bold().light_blue(),
-                        ),
+                        Span::from("r").bold().light_blue(),
                         Span::from(": run"),
                     ]),
                     Line::from(vec![
-                        Span::styled(
-                            "R",
-                            Style::default().bold().light_blue(),
-                        ),
+                        Span::from("R").bold().light_blue(),
                         Span::from(": run release"),
+                    ]),
+                    Line::from(vec![
+                        Span::from("i").bold().light_blue(),
+                        Span::from(": install"),
                     ]),
                 ]
             };
             let rest = vec![
                 Line::from(vec![
-                    Span::styled(
-                        "b",
-                        Style::default().bold().light_blue(),
-                    ),
+                    Span::from("b").bold().light_blue(),
                     Span::from(": build"),
                 ]),
                 Line::from(vec![
-                    Span::styled(
-                        "B",
-                        Style::default().bold().light_blue(),
-                    ),
+                    Span::from("B").bold().light_blue(),
                     Span::from(": build release"),
                 ]),
                 Line::from(vec![
-                    Span::styled(
-                        "t",
-                        Style::default().bold().light_blue(),
-                    ),
+                    Span::from("t").bold().light_blue(),
                     Span::from(": test"),
                 ]),
                 Line::from(vec![
-                    Span::styled(
-                        "c",
-                        Style::default().bold().light_blue(),
-                    ),
+                    Span::from("c").bold().light_blue(),
                     Span::from(": check"),
                 ]),
                 Line::from(vec![
-                    Span::styled(
-                        "C",
-                        Style::default().bold().light_blue(),
-                    ),
+                    Span::from("C").bold().light_blue(),
                     Span::from(": clippy"),
                 ]),
                 Line::from(vec![
-                    Span::styled(
-                        "f",
-                        Style::default().bold().light_blue(),
-                    ),
+                    Span::from("f").bold().light_blue(),
                     Span::from(": format"),
                 ]),
             ];

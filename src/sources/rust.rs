@@ -20,6 +20,7 @@ pub enum RustCommand {
     #[default]
     Run,
     RunRelease,
+    Install,
     Build,
     BuildRelease,
     Test,
@@ -37,6 +38,7 @@ impl Display for RustCommand {
         let d = match self {
             RustCommand::Run => "cargo run",
             RustCommand::RunRelease => "cargo run --release",
+            RustCommand::Install => "cargo install --path .",
             RustCommand::Test => "cargo test",
             RustCommand::Fmt => "cargo fmt",
             RustCommand::Check => "cargo check",

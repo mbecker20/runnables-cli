@@ -163,6 +163,7 @@ impl State {
                     let command = match key {
                         'r' => Some(RustCommand::Run),
                         'R' => Some(RustCommand::RunRelease),
+                        'i' => Some(RustCommand::Install),
                         't' => Some(RustCommand::Test),
                         'f' => Some(RustCommand::Fmt),
                         'c' => Some(RustCommand::Check),
