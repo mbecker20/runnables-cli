@@ -1,6 +1,5 @@
-use std::{fs, path::Path};
+use std::{fs, path::{Path, PathBuf}};
 
-use anyhow::Context;
 use run_command::run_command_pipe_to_terminal;
 
 use crate::types::Runnable;
@@ -14,13 +13,12 @@ pub fn ignore_dir(path: &Path) -> bool {
 pub trait FindRunnables {
     fn find_runnable(path: &Path) -> anyhow::Result<Vec<Runnable>>;
 
-    fn find_runnables(path: &Path) -> Vec<Runnable> {
+    fn find_runnables(path: &Path, runignores: &[PathBuf]) -> Vec<Runnable> {
         let mut runnables = Vec::<Runnable>::new();
         if let Ok(_runnables) = Self::find_runnable(path) {
             runnables.extend(_runnables);
         }
-        let entries = fs::read_dir(path)
-            .context(format!("failed to read path: {path:?}"));
+        let entries = fs::read_dir(path);
         if entries.is_err() {
             return runnables;
         }
@@ -28,8 +26,9 @@ pub trait FindRunnables {
             if let Ok(metadata) = entry.metadata() {
                 if metadata.is_dir() {
                     let path = entry.path();
-                    if !ignore_dir(&path) {
-                        runnables.extend(Self::find_runnables(&path));
+                    let norm = path.canonicalize().unwrap();
+                    if !ignore_dir(&path) && !runignores.contains(&norm){
+                        runnables.extend(Self::find_runnables(&path, runignores));
                     }
                 }
             }
