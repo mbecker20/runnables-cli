@@ -15,7 +15,7 @@ use ratatui::{
 use crate::{
     helpers::runnable_path_display,
     state::{Mode, State},
-    types::{Runnable, RunnableParams},
+    types::{Runnable, RunnableParams, RunnableParamsVariant},
 };
 
 pub fn render<B: Backend>(
@@ -115,68 +115,22 @@ fn render_list<B: Backend>(
 ) {
     let mut lines: Vec<Line> = Default::default();
 
-    // let runfile_runnables =
-    //     state.get_runnables_variants(RunnableParamsVariant::RunFile);
-    // if !runfile_runnables.is_empty() {
-    //     lines.push(Line::styled("-------- runfile ---------", Style::default().white()));
-    //     // lines.push(Line::from(""));
-    //     for runnable in runfile_runnables {
-    //         let line = runnable_runnable(
-    //             runnable,
-    //             runnable.index == state.selected,
-    //         );
-    //         lines.push(line);
-    //     }
-    //     lines.push(Line::from(""));
-    // }
-    //
-    // let shell_runnables =
-    //     state.get_runnables_variants(RunnableParamsVariant::Shell);
-    // if !shell_runnables.is_empty() {
-    //     lines.push(Line::styled("-------- shell ---------", Style::default().white()));
-    //     // lines.push(Line::from(""));
-    //     for runnable in shell_runnables {
-    //         let line = runnable_runnable(
-    //             runnable,
-    //             runnable.index == state.selected,
-    //         );
-    //         lines.push(line);
-    //     }
-    //     lines.push(Line::from(""));
-    // }
-    //
-    // let rust_runnables =
-    //     state.get_runnables_variants(RunnableParamsVariant::Rust);
-    // if !rust_runnables.is_empty() {
-    //     lines.push(Line::styled("---------- rust ---------", Style::default().white()));
-    //     // lines.push(Line::from(""));
-    //     for runnable in rust_runnables {
-    //         let line = runnable_runnable(
-    //             runnable,
-    //             runnable.index == state.selected,
-    //         );
-    //         lines.push(line);
-    //     }
-    //     lines.push(Line::from(""));
-    // }
-    //
-    // let javascript_runnables = state
-    //     .get_runnables_variants(RunnableParamsVariant::Javascript);
-    // if !javascript_runnables.is_empty() {
-    //     lines.push(Line::styled("---------- javascript ---------", Style::default().white()));
-    //     // lines.push(Line::from(""));
-    //     for runnable in javascript_runnables {
-    //         let line = runnable_runnable(
-    //             runnable,
-    //             runnable.index == state.selected,
-    //         );
-    //         lines.push(line);
-    //     }
-    //     lines.push(Line::from(""));
-    // }
-
     state.set_active_runnables();
+    let mut group = RunnableParamsVariant::None;
     for (index, runnable) in state.active.iter().enumerate() {
+        let variant: RunnableParamsVariant =
+            (&runnable.params).into();
+        if variant != group {
+            if group != RunnableParamsVariant::None {
+                lines.push(Line::from(""));
+            }
+            group = variant;
+            let header = Line::styled(
+                format!("---------- {} ----------", runnable.params),
+                Style::default().white(),
+            );
+            lines.push(header);
+        }
         let line = runnable_line(runnable, index == state.selected);
         lines.push(line);
     }
@@ -193,8 +147,8 @@ fn render_list<B: Backend>(
 
 fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
     let mut line = Line::from(vec![
-        Span::from(runnable.params.to_string()).dim(),
-        Span::from(" => ").dim().white(),
+        // Span::from(runnable.params.to_string()).dim(),
+        // Span::from(" => ").dim().white(),
         runnable.name.light_blue(),
         // Span::from(" => ").gray(),
         // Span::from(runnable.path.to_str().unwrap()).gray(),
