@@ -38,6 +38,7 @@ impl FindRunnables for RunFile {
             .into_iter()
             .map(|(name, item)| Runnable {
                 name,
+                display_name: None,
                 description: item.description,
                 path: path.join(item.path),
                 index: 0,

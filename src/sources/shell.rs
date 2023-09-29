@@ -33,6 +33,7 @@ impl FindRunnables for Shell {
             if child.path().extension().map(|extension| extension == "sh").unwrap_or(false) {
                 runnables.push(Runnable {
                     name: child.path().display().to_string(),
+                    display_name: None,
                     path: child.path(),
                     index: 0,
                     params: RunnableParams::Shell(ShellParams {}),

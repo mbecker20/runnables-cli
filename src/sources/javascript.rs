@@ -36,7 +36,7 @@ impl Display for JavascriptCommand {
 
 #[derive(Deserialize)]
 struct PackageJson {
-    // name: String,
+    name: String,
     scripts: IndexMap<String, String>,
 }
 
@@ -49,13 +49,14 @@ impl FindRunnables for Javascript {
         let package_json_contents =
             fs::read_to_string(path.join("package.json"))
                 .context("directory does not inclue package.json")?;
-        let PackageJson { scripts } =
+        let PackageJson { name, scripts } =
             serde_json::from_str(&package_json_contents)
                 .context("failed to parse package.json")?;
         let runnables =
             scripts
                 .into_iter()
                 .map(|(script_name, command)| Runnable {
+                    display_name: Some(format!("{name}/{script_name}")),
                     name: script_name,
                     description: Some(command),
                     path: path.to_owned(),

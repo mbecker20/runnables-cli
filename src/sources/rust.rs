@@ -82,6 +82,7 @@ impl FindRunnables for Rust {
             if lib.is_file() {
                 runnables.push(Runnable {
                     name: name.clone(),
+                    display_name: None,
                     description: description.clone(),
                     path: path.to_owned(),
                     index: 0,
@@ -99,6 +100,7 @@ impl FindRunnables for Rust {
             if bin.is_file() {
                 runnables.push(Runnable {
                     name: name.clone(),
+                    display_name: None,
                     description: description.clone(),
                     path: path.to_owned(),
                     index: 0,

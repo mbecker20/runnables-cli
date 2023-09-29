@@ -12,6 +12,7 @@ use crate::sources::{
 #[derive(Clone, Debug, Default)]
 pub struct Runnable {
     pub name: String,
+    pub display_name: Option<String>,
     pub description: Option<String>,
     pub path: PathBuf,
     pub index: usize,
