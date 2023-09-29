@@ -146,10 +146,11 @@ fn render_list<B: Backend>(
 }
 
 fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
+    let name = runnable.display_name.as_ref().unwrap_or(&runnable.name);
     let mut line = Line::from(vec![
         // Span::from(runnable.params.to_string()).dim(),
         // Span::from(" => ").dim().white(),
-        runnable.name.light_blue(),
+        name.light_blue(),
         // Span::from(" => ").gray(),
         // Span::from(runnable.path.to_str().unwrap()).gray(),
     ]);
