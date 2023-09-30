@@ -5,7 +5,6 @@ use types::RunnableParamsVariant;
 
 use crate::{sources::run_runnable, types::RunnableParams};
 
-mod components;
 mod helpers;
 mod runnables;
 mod sources;
@@ -19,7 +18,7 @@ pub struct CliArgs {
     #[arg(default_value_t = String::from("."))]
     path: String,
     #[arg(short, long)]
-    search: bool,
+    search: Option<String>,
     #[arg(short, long, default_value_t = Color::Blue)]
     color: Color,
     #[arg(short, long)]

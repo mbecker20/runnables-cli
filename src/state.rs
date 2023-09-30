@@ -34,14 +34,13 @@ pub struct State {
 impl State {
     pub fn new() -> anyhow::Result<State> {
         let args = CliArgs::parse();
-        let mut runnables =
-            get_runnables(&args)?;
+        let mut runnables = get_runnables(&args)?;
         runnables.iter_mut().enumerate().for_each(
             |(index, runnable)| {
                 runnable.index = index;
             },
         );
-        let mode = if args.search {
+        let mode = if args.search.is_some() {
             Mode::Search
         } else {
             Mode::List
@@ -49,11 +48,14 @@ impl State {
         let mut state = State {
             runnables: runnables.into_iter().map(Rc::new).collect(),
             active: Default::default(),
-            args,
             selected: 0,
             runnable: Default::default(),
+            search: Input::with_value(
+                Default::default(),
+                args.search.clone().unwrap_or_default(),
+            ),
             mode,
-            search: Default::default(),
+            args,
         };
         state.set_active_runnables();
         Ok(state)

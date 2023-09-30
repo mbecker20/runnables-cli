@@ -56,7 +56,9 @@ impl FindRunnables for Javascript {
             scripts
                 .into_iter()
                 .map(|(script_name, command)| Runnable {
-                    display_name: Some(format!("{name}/{script_name}")),
+                    display_name: Some(format!(
+                        "{name} / {script_name}"
+                    )),
                     name: script_name,
                     description: Some(command),
                     path: path.to_owned(),
