@@ -1,10 +1,10 @@
 [package]
 name = "runnables-cli"
-version = "0.1.0"
-edition = "2021"
+description = "cli to run executables in a workspace"
 author = ["mbecker20 <becker.maxh@gmail.com>"]
-description = "run any executable package in a workspace"
 license = "GPL-3.0-or-later"
+edition = "2021"
+version = "0.1.0"
 
 [[bin]]
 name = "run"
