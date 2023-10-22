@@ -9,7 +9,8 @@ use crate::{
     sources::{
         get_runnables,
         javascript::{JavascriptCommand, JavascriptParams},
-        rust::{RustCommand, RustParams},
+        rust_bin::{RustBinCommand, RustBinParams},
+        rust_lib::{RustLibCommand, RustLibParams},
     },
     types::{Runnable, RunnableParams},
     CliArgs,
@@ -161,28 +162,46 @@ impl State {
                         false
                     }
                 }
-                RunnableParams::Rust(params) => {
+                RunnableParams::RustBin(_) => {
                     let command = match key {
-                        'r' => Some(RustCommand::Run),
-                        'R' => Some(RustCommand::RunRelease),
-                        'i' => Some(RustCommand::Install),
-                        't' => Some(RustCommand::Test),
-                        'f' => Some(RustCommand::Fmt),
-                        'c' => Some(RustCommand::Check),
-                        'C' => Some(RustCommand::Clippy),
-                        'b' => Some(RustCommand::Build),
-                        'B' => Some(RustCommand::BuildRelease),
-                        'p' => Some(RustCommand::Publish),
+                        'r' => Some(RustBinCommand::Run),
+                        'R' => Some(RustBinCommand::RunRelease),
+                        'i' => Some(RustBinCommand::Install),
+                        't' => Some(RustBinCommand::Test),
+                        'f' => Some(RustBinCommand::Fmt),
+                        'c' => Some(RustBinCommand::Check),
+                        'C' => Some(RustBinCommand::Clippy),
+                        'b' => Some(RustBinCommand::Build),
+                        'B' => Some(RustBinCommand::BuildRelease),
                         _ => None,
                     };
-                    let is_lib = params.is_lib;
                     if let Some(command) = command {
                         self.set_runnable();
                         self.runnable.params =
-                            RunnableParams::Rust(RustParams {
+                            RunnableParams::RustBin(RustBinParams {
                                 command,
-                                is_lib,
-                                args: None,
+                            });
+                        true
+                    } else {
+                        false
+                    }
+                }
+                RunnableParams::RustLib(_) => {
+                    let command = match key {
+                        'p' => Some(RustLibCommand::Publish),
+                        't' => Some(RustLibCommand::Test),
+                        'f' => Some(RustLibCommand::Fmt),
+                        'c' => Some(RustLibCommand::Check),
+                        'C' => Some(RustLibCommand::Clippy),
+                        'b' => Some(RustLibCommand::Build),
+                        'B' => Some(RustLibCommand::BuildRelease),
+                        _ => None,
+                    };
+                    if let Some(command) = command {
+                        self.set_runnable();
+                        self.runnable.params =
+                            RunnableParams::RustLib(RustLibParams {
+                                command,
                             });
                         true
                     } else {

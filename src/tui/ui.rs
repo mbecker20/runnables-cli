@@ -146,7 +146,8 @@ fn render_list<B: Backend>(
 }
 
 fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
-    let name = runnable.display_name.as_ref().unwrap_or(&runnable.name);
+    let name =
+        runnable.display_name.as_ref().unwrap_or(&runnable.name);
     let mut line = Line::from(vec![
         // Span::from(runnable.params.to_string()).dim(),
         // Span::from(" => ").dim().white(),
@@ -242,57 +243,74 @@ fn keypress_helper(params: &RunnableParams) -> Vec<Line<'static>> {
                 Span::from(": npm"),
             ]),
         ],
-        RunnableParams::Rust(params) => {
-            let mut first = if params.is_lib {
-                vec![Line::from(vec![
-                    Span::from("p").bold().light_blue(),
-                    Span::from(": publish"),
-                ])]
-            } else {
-                vec![
-                    Line::from(vec![
-                        Span::from("r").bold().light_blue(),
-                        Span::from(": run"),
-                    ]),
-                    Line::from(vec![
-                        Span::from("R").bold().light_blue(),
-                        Span::from(": run release"),
-                    ]),
-                    Line::from(vec![
-                        Span::from("i").bold().light_blue(),
-                        Span::from(": install"),
-                    ]),
-                ]
-            };
-            let rest = vec![
-                Line::from(vec![
-                    Span::from("b").bold().light_blue(),
-                    Span::from(": build"),
-                ]),
-                Line::from(vec![
-                    Span::from("B").bold().light_blue(),
-                    Span::from(": build release"),
-                ]),
-                Line::from(vec![
-                    Span::from("t").bold().light_blue(),
-                    Span::from(": test"),
-                ]),
-                Line::from(vec![
-                    Span::from("c").bold().light_blue(),
-                    Span::from(": check"),
-                ]),
-                Line::from(vec![
-                    Span::from("C").bold().light_blue(),
-                    Span::from(": clippy"),
-                ]),
-                Line::from(vec![
-                    Span::from("f").bold().light_blue(),
-                    Span::from(": format"),
-                ]),
-            ];
-            first.extend(rest);
-            first
-        }
+        RunnableParams::RustBin(_) => vec![
+            Line::from(vec![
+                Span::from("r").bold().light_blue(),
+                Span::from(": run"),
+            ]),
+            Line::from(vec![
+                Span::from("R").bold().light_blue(),
+                Span::from(": run release"),
+            ]),
+            Line::from(vec![
+                Span::from("i").bold().light_blue(),
+                Span::from(": install"),
+            ]),
+            Line::from(vec![
+                Span::from("b").bold().light_blue(),
+                Span::from(": build"),
+            ]),
+            Line::from(vec![
+                Span::from("B").bold().light_blue(),
+                Span::from(": build release"),
+            ]),
+            Line::from(vec![
+                Span::from("t").bold().light_blue(),
+                Span::from(": test"),
+            ]),
+            Line::from(vec![
+                Span::from("c").bold().light_blue(),
+                Span::from(": check"),
+            ]),
+            Line::from(vec![
+                Span::from("C").bold().light_blue(),
+                Span::from(": clippy"),
+            ]),
+            Line::from(vec![
+                Span::from("f").bold().light_blue(),
+                Span::from(": format"),
+            ]),
+        ],
+        RunnableParams::RustLib(_) => vec![
+            Line::from(vec![
+                Span::from("p").bold().light_blue(),
+                Span::from(": publish"),
+            ]),
+            Line::from(vec![
+                Span::from("b").bold().light_blue(),
+                Span::from(": build"),
+            ]),
+            Line::from(vec![
+                Span::from("B").bold().light_blue(),
+                Span::from(": build release"),
+            ]),
+            Line::from(vec![
+                Span::from("t").bold().light_blue(),
+                Span::from(": test"),
+            ]),
+            Line::from(vec![
+                Span::from("c").bold().light_blue(),
+                Span::from(": check"),
+            ]),
+            Line::from(vec![
+                Span::from("C").bold().light_blue(),
+                Span::from(": clippy"),
+            ]),
+            Line::from(vec![
+                Span::from("f").bold().light_blue(),
+                Span::from(": format"),
+            ]),
+        ],
         RunnableParams::None => {
             panic!("tried to get keypress helpers for None variant")
         }

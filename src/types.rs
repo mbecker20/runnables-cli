@@ -1,12 +1,13 @@
 use std::{fmt::Display, path::PathBuf};
 
-use derive_variants::EnumVariants;
-use colored::Colorize;
 use clap::ValueEnum;
+use colored::Colorize;
+use derive_variants::EnumVariants;
 
 use crate::sources::{
     javascript::JavascriptParams, runfile::RunFileParams,
-    rust::RustParams, shell::ShellParams,
+    rust_bin::RustBinParams, rust_lib::RustLibParams,
+    shell::ShellParams,
 };
 
 #[derive(Clone, Debug, Default)]
@@ -26,7 +27,8 @@ pub enum RunnableParams {
     None,
     RunFile(RunFileParams),
     Shell(ShellParams),
-    Rust(RustParams),
+    RustBin(RustBinParams),
+    RustLib(RustLibParams),
     Javascript(JavascriptParams),
 }
 
@@ -36,15 +38,10 @@ impl Display for RunnableParams {
         f: &mut std::fmt::Formatter<'_>,
     ) -> std::fmt::Result {
         let d = match self {
-            RunnableParams::Rust(params) => {
-                if params.is_lib {
-                    "rust (lib)"
-                } else {
-                    "rust (bin)"
-                }
-            }
             RunnableParams::RunFile(_) => "runfile",
             RunnableParams::Shell(_) => "shell",
+            RunnableParams::RustBin(_) => "rust (bin)",
+            RunnableParams::RustLib(_) => "rust (lib)",
             RunnableParams::Javascript(_) => "javascript",
             RunnableParams::None => "none",
         };
@@ -56,7 +53,12 @@ impl From<&RunnableParams> for RunnableParamsVariant {
     fn from(params: &RunnableParams) -> Self {
         match params {
             RunnableParams::None => RunnableParamsVariant::None,
-            RunnableParams::Rust(_) => RunnableParamsVariant::Rust,
+            RunnableParams::RustBin(_) => {
+                RunnableParamsVariant::RustBin
+            }
+            RunnableParams::RustLib(_) => {
+                RunnableParamsVariant::RustLib
+            }
             RunnableParams::RunFile(_) => {
                 RunnableParamsVariant::RunFile
             }
@@ -74,7 +76,7 @@ impl Runnable {
         println!("running: {}", self.name.bright_blue());
         println!("type: {}", self.params.to_string().bright_blue());
 
-        if let RunnableParams::Rust(params) = &self.params {
+        if let RunnableParams::RustBin(params) = &self.params {
             println!(
                 "command: {}",
                 params.command.to_string().bright_blue()

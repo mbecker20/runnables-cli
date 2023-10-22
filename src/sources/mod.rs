@@ -5,19 +5,20 @@ use std::{
 };
 
 use crate::{
-    runnables::{FindRunnables, RunRunnable, ignore_dir},
+    runnables::{ignore_dir, FindRunnables, RunRunnable},
     types::{Runnable, RunnableParams, RunnableParamsVariant},
     CliArgs,
 };
 
 use self::{
-    javascript::Javascript, runfile::RunFile, rust::Rust,
-    shell::Shell,
+    javascript::Javascript, runfile::RunFile, rust_bin::RustBin,
+    shell::Shell, rust_lib::RustLib,
 };
 
 pub mod javascript;
 pub mod runfile;
-pub mod rust;
+pub mod rust_bin;
+pub mod rust_lib;
 pub mod shell;
 
 pub fn get_runnables(
@@ -35,12 +36,16 @@ pub fn get_runnables(
     if !args.ignore.contains(&RunnableParamsVariant::Shell) {
         runnables.extend(Shell::find_runnables(&path, &runignores));
     }
-    if !args.ignore.contains(&RunnableParamsVariant::Rust) {
-        runnables.extend(Rust::find_runnables(&path, &runignores));
+    if !args.ignore.contains(&RunnableParamsVariant::RustBin) {
+        runnables.extend(RustBin::find_runnables(&path, &runignores));
     }
-    if !args.ignore.contains(&RunnableParamsVariant::Javascript) {
-        runnables.extend(Javascript::find_runnables(&path, &runignores));
+    if !args.ignore.contains(&RunnableParamsVariant::RustLib) {
+        runnables.extend(RustLib::find_runnables(&path, &runignores));
     }
+    // if !args.ignore.contains(&RunnableParamsVariant::Javascript) {
+    //     runnables
+    //         .extend(Javascript::find_runnables(&path, &runignores));
+    // }
 
     Ok(runnables)
 }
@@ -50,9 +55,14 @@ pub fn run_runnable(runnable: Runnable) {
         RunnableParams::RunFile(params) => {
             RunFile::run(&runnable, params)
         }
-        RunnableParams::Rust(params) => Rust::run(&runnable, params),
         RunnableParams::Shell(params) => {
             Shell::run(&runnable, params)
+        }
+        RunnableParams::RustBin(params) => {
+            RustBin::run(&runnable, params)
+        }
+        RunnableParams::RustLib(params) => {
+            RustLib::run(&runnable, params)
         }
         RunnableParams::Javascript(params) => {
             Javascript::run(&runnable, params)
