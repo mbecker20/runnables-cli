@@ -4,7 +4,7 @@ description = "cli to run executables in a workspace"
 author = ["mbecker20 <becker.maxh@gmail.com>"]
 license = "GPL-3.0-or-later"
 edition = "2021"
-version = "0.1.0"
+version = "0.1.1"
 
 [[bin]]
 name = "run"
