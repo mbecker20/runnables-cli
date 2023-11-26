@@ -11,6 +11,7 @@ use ratatui::{
 
 use crate::{
   helpers::runnable_path_display,
+  sources::runfile::RunFileParams,
   state::{Mode, State},
   types::{Runnable, RunnableParams, RunnableParamsVariant},
 };
@@ -167,6 +168,11 @@ fn render_info<B: Backend>(
         .clone();
       lines.push(Line::from(""));
       lines.push(Line::from(description));
+
+      if let RunnableParams::RunFile(RunFileParams { cmd }) = &selected.params {
+        lines.push(Line::from(""));
+        lines.push(Line::from(Span::from(cmd).light_blue().bold()));
+      }
 
       lines.push(Line::from(""));
       lines.extend(keypress_helper(&selected.params));

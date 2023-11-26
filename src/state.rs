@@ -64,8 +64,8 @@ impl State {
     self.active = self
       .runnables
       .iter()
-      .cloned()
       .filter(|runnable| runnable.name.contains(self.search.value()))
+      .cloned()
       .collect();
   }
 
