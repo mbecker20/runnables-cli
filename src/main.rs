@@ -15,40 +15,40 @@ mod types;
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 pub struct CliArgs {
-    #[arg(default_value_t = String::from("."))]
-    path: String,
-    #[arg(short, long)]
-    search: Option<String>,
-    #[arg(short, long, default_value_t = Color::Blue)]
-    color: Color,
-    #[arg(short, long)]
-    ignore: Vec<RunnableParamsVariant>,
+  #[arg(default_value_t = String::from("."))]
+  path: String,
+  #[arg(short, long)]
+  search: Option<String>,
+  #[arg(short, long, default_value_t = Color::Blue)]
+  color: Color,
+  #[arg(short, long)]
+  ignore: Vec<RunnableParamsVariant>,
 }
 
 fn main() -> anyhow::Result<()> {
-    let mut state = state::State::new()?;
+  let mut state = state::State::new()?;
 
-    if state.runnables.is_empty() {
-        println!("no runnables found 🧐");
-        wait_for_enter()?;
-        return Ok(());
-    }
-
-    match tui::run(&mut state) {
-        Ok(_) => {
-            if let RunnableParams::None = state.runnable.params {
-                // no selection was made
-                return Ok(());
-            }
-            state.runnable.log_info();
-            run_runnable(state.runnable);
-        }
-        Err(e) => {
-            println!("\n{e:#?}");
-        }
-    }
-
+  if state.runnables.is_empty() {
+    println!("no runnables found 🧐");
     wait_for_enter()?;
+    return Ok(());
+  }
 
-    Ok(())
+  match tui::run(&mut state) {
+    Ok(_) => {
+      if let RunnableParams::None = state.runnable.params {
+        // no selection was made
+        return Ok(());
+      }
+      state.runnable.log_info();
+      run_runnable(state.runnable);
+    }
+    Err(e) => {
+      println!("\n{e:#?}");
+    }
+  }
+
+  wait_for_enter()?;
+
+  Ok(())
 }
