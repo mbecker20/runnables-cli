@@ -1,5 +1,5 @@
 use ratatui::{
-  prelude::{Alignment, Backend, Constraint, Direction, Layout, Margin, Rect},
+  prelude::{Alignment, Constraint, Direction, Layout, Margin, Rect},
   style::{Color, Style, Stylize},
   text::{Line, Span},
   widgets::{
@@ -16,11 +16,7 @@ use crate::{
   types::{Runnable, RunnableParams, RunnableParamsVariant},
 };
 
-pub fn render<B: Backend>(
-  frame: &mut Frame<B>,
-  state: &mut State,
-  root_path: &str,
-) -> anyhow::Result<()> {
+pub fn render(frame: &mut Frame, state: &mut State, root_path: &str) -> anyhow::Result<()> {
   let frame_size = frame.size().inner(&Margin::new(1, 1));
 
   render_bounder(frame, root_path, frame_size);
@@ -44,7 +40,7 @@ pub fn render<B: Backend>(
   Ok(())
 }
 
-fn render_bounder<B: Backend>(frame: &mut Frame<B>, root_path: &str, frame_size: Rect) {
+fn render_bounder(frame: &mut Frame, root_path: &str, frame_size: Rect) {
   let border = Block::default()
     .title(Span::styled(
       "runnables-cli",
@@ -62,7 +58,7 @@ fn render_bounder<B: Backend>(frame: &mut Frame<B>, root_path: &str, frame_size:
   frame.render_widget(border, frame_size);
 }
 
-fn render_search<B: Backend>(frame: &mut Frame<B>, state: &State, frame_size: Rect) {
+fn render_search(frame: &mut Frame, state: &State, frame_size: Rect) {
   let value = state.search.value();
   let value = if state.mode == Mode::List && value.is_empty() {
     "press TAB to search"
@@ -86,7 +82,7 @@ fn render_search<B: Backend>(frame: &mut Frame<B>, state: &State, frame_size: Re
   }
 }
 
-fn render_list<B: Backend>(frame: &mut Frame<B>, state: &mut State, layout: &[Rect]) {
+fn render_list(frame: &mut Frame, state: &mut State, layout: &[Rect]) {
   let mut lines: Vec<Line> = Default::default();
 
   state.set_active_runnables();
@@ -118,7 +114,11 @@ fn render_list<B: Backend>(frame: &mut Frame<B>, state: &mut State, layout: &[Re
 }
 
 fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
-  let name = runnable.display_name.as_ref().unwrap_or(&runnable.name);
+  let name = runnable
+    .display_name
+    .as_ref()
+    .unwrap_or(&runnable.name)
+    .clone();
   let mut line = Line::from(vec![
     // Span::from(runnable.params.to_string()).dim(),
     // Span::from(" => ").dim().white(),
@@ -133,8 +133,8 @@ fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
   line
 }
 
-fn render_info<B: Backend>(
-  frame: &mut Frame<B>,
+fn render_info(
+  frame: &mut Frame,
   state: &State,
   root_path: &str,
   layout: &[Rect],
