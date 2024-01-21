@@ -37,6 +37,10 @@ pub fn wait_for_enter() -> anyhow::Result<()> {
   Ok(())
 }
 
+pub fn split_match_strings(search: &str, target: &str) -> bool {
+  search.split(' ').all(|term| target.contains(term))
+}
+
 // pub fn timestamp_ms() -> u128 {
 //     SystemTime::now()
 //         .duration_since(SystemTime::UNIX_EPOCH)

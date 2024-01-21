@@ -5,7 +5,7 @@ use crossterm::event::{Event, KeyCode};
 use tui_input::{backend::crossterm::EventHandler, Input};
 
 use crate::{
-  helpers::absolute_path,
+  helpers::{absolute_path, split_match_strings},
   sources::{
     get_runnables,
     javascript::{JavascriptCommand, JavascriptParams},
@@ -64,7 +64,7 @@ impl State {
     self.active = self
       .runnables
       .iter()
-      .filter(|runnable| runnable.name.contains(self.search.value()))
+      .filter(|runnable| split_match_strings(self.search.value(), &runnable.name))
       .cloned()
       .collect();
   }
