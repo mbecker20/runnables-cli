@@ -45,19 +45,6 @@ impl Display for RunnableParams {
   }
 }
 
-impl From<&RunnableParams> for RunnableParamsVariant {
-  fn from(params: &RunnableParams) -> Self {
-    match params {
-      RunnableParams::None => RunnableParamsVariant::None,
-      RunnableParams::RustBin(_) => RunnableParamsVariant::RustBin,
-      RunnableParams::RustLib(_) => RunnableParamsVariant::RustLib,
-      RunnableParams::RunFile(_) => RunnableParamsVariant::RunFile,
-      RunnableParams::Shell(_) => RunnableParamsVariant::Shell,
-      RunnableParams::Javascript(_) => RunnableParamsVariant::Javascript,
-    }
-  }
-}
-
 impl Runnable {
   pub fn log_info(&self) {
     println!("-----------------------");
