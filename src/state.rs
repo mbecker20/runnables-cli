@@ -158,6 +158,7 @@ impl State {
           let command = match key {
             'r' => Some(RustBinCommand::Run),
             'R' => Some(RustBinCommand::RunRelease),
+            'p' => Some(RustBinCommand::Publish),
             'i' => Some(RustBinCommand::Install),
             't' => Some(RustBinCommand::Test),
             'f' => Some(RustBinCommand::Fmt),

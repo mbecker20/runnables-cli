@@ -18,6 +18,7 @@ pub enum RustBinCommand {
   #[default]
   Run,
   RunRelease,
+  Publish,
   Install,
   Build,
   BuildRelease,
@@ -32,6 +33,7 @@ impl Display for RustBinCommand {
     let d = match self {
       RustBinCommand::Run => "cargo run",
       RustBinCommand::RunRelease => "cargo run --release",
+      RustBinCommand::Publish => "cargo publish",
       RustBinCommand::Install => "cargo install --path .",
       RustBinCommand::Test => "cargo test",
       RustBinCommand::Fmt => "cargo fmt",

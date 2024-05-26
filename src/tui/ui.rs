@@ -127,7 +127,7 @@ fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
     // Span::from(runnable.path.to_str().unwrap()).gray(),
   ]);
   if selected {
-    line.patch_style(Style::default().bold().underlined());
+    line = line.patch_style(Style::default().bold().underlined());
   }
 
   line
@@ -226,6 +226,10 @@ fn keypress_helper(params: &RunnableParams) -> Vec<Line<'static>> {
       Line::from(vec![
         Span::from("R").bold().light_blue(),
         Span::from(": run release"),
+      ]),
+      Line::from(vec![
+        Span::from("p").bold().light_blue(),
+        Span::from(": publish"),
       ]),
       Line::from(vec![
         Span::from("i").bold().light_blue(),
