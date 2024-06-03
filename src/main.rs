@@ -1,6 +1,7 @@
 use std::time::Instant;
 
 use clap::Parser;
+use colored::Colorize;
 use helpers::wait_for_enter;
 use ratatui::style::Color;
 use types::RunnableParamsVariant;
@@ -45,7 +46,11 @@ fn main() -> anyhow::Result<()> {
       state.runnable.log_info();
       let timer = Instant::now();
       run_runnable(state.runnable);
-      println!("\nFINISHED in {:?}", timer.elapsed());
+      println!(
+        "\n{} {}",
+        "FINISHED in".dimmed(),
+        format!("{:.2?}", timer.elapsed()).bold()
+      );
     }
     Err(e) => {
       println!("\n{e:#?}");
