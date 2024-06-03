@@ -1,3 +1,4 @@
+use derive_variants::ExtractVariant;
 use ratatui::{
   prelude::{Alignment, Constraint, Direction, Layout, Margin, Rect},
   style::{Color, Style, Stylize},
@@ -88,7 +89,7 @@ fn render_list(frame: &mut Frame, state: &mut State, layout: &[Rect]) {
   state.set_active_runnables();
   let mut group = RunnableParamsVariant::None;
   for (index, runnable) in state.active.iter().enumerate() {
-    let variant: RunnableParamsVariant = (&runnable.params).into();
+    let variant = runnable.params.extract_variant();
     if variant != group {
       if group != RunnableParamsVariant::None {
         lines.push(Line::from(""));
