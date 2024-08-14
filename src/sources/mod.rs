@@ -5,16 +5,14 @@ use std::{
 };
 
 use crate::{
-  runnables::{ignore_dir, FindRunnables, RunRunnable},
+  runnables::{ignore_dir, AddRunnables, RunRunnable},
   types::{Runnable, RunnableParams, RunnableParamsVariant},
   CliArgs,
 };
 
-use self::{
-  javascript::Javascript, runfile::RunFile, rust_bin::RustBin, rust_lib::RustLib, shell::Shell,
-};
+use self::{runfile::RunFile, rust_bin::RustBin, rust_lib::RustLib, shell::Shell};
 
-pub mod javascript;
+// pub mod javascript;
 pub mod runfile;
 pub mod rust_bin;
 pub mod rust_lib;
@@ -28,21 +26,17 @@ pub fn get_runnables(args: &CliArgs) -> anyhow::Result<Vec<Runnable>> {
   let mut runnables = Vec::new();
 
   if !args.ignore.contains(&RunnableParamsVariant::RunFile) {
-    runnables.extend(RunFile::find_runnables(&path, &runignores));
+    RunFile::add_runnables(&path, &runignores, &mut runnables);
   }
   if !args.ignore.contains(&RunnableParamsVariant::Shell) {
-    runnables.extend(Shell::find_runnables(&path, &runignores));
+    Shell::add_runnables(&path, &runignores, &mut runnables);
   }
   if !args.ignore.contains(&RunnableParamsVariant::RustBin) {
-    runnables.extend(RustBin::find_runnables(&path, &runignores));
+    RustBin::add_runnables(&path, &runignores, &mut runnables);
   }
   if !args.ignore.contains(&RunnableParamsVariant::RustLib) {
-    runnables.extend(RustLib::find_runnables(&path, &runignores));
+    RustLib::add_runnables(&path, &runignores, &mut runnables);
   }
-  // if !args.ignore.contains(&RunnableParamsVariant::Javascript) {
-  //     runnables
-  //         .extend(Javascript::find_runnables(&path, &runignores));
-  // }
 
   Ok(runnables)
 }
@@ -53,7 +47,6 @@ pub fn run_runnable(runnable: Runnable) {
     RunnableParams::Shell(params) => Shell::run(&runnable, params),
     RunnableParams::RustBin(params) => RustBin::run(&runnable, params),
     RunnableParams::RustLib(params) => RustLib::run(&runnable, params),
-    RunnableParams::Javascript(params) => Javascript::run(&runnable, params),
     RunnableParams::None => {
       println!("got NONE runnable")
     }
@@ -63,11 +56,10 @@ pub fn run_runnable(runnable: Runnable) {
 fn get_runignores(path: &Path) -> Vec<PathBuf> {
   let mut runignores = Vec::<PathBuf>::new();
   runignores.extend(get_runignore(path));
-  let entries = fs::read_dir(path);
-  if entries.is_err() {
+  let Ok(entries) = fs::read_dir(path) else {
     return runignores;
-  }
-  for entry in entries.unwrap().flatten() {
+  };
+  for entry in entries.flatten() {
     if let Ok(metadata) = entry.metadata() {
       if metadata.is_dir() {
         let path = entry.path();
@@ -81,12 +73,10 @@ fn get_runignores(path: &Path) -> Vec<PathBuf> {
 }
 
 fn get_runignore(path: &Path) -> Vec<PathBuf> {
-  let runignore = fs::read_to_string(path.join(".runignore"));
-  if runignore.is_err() {
-    return Vec::new();
-  }
+  let Ok(runignore) = fs::read_to_string(path.join(".runignore")) else {
+    return Default::default();
+  };
   runignore
-    .unwrap()
     .split('\n')
     .flat_map(|p| path.join(p).canonicalize())
     .collect()

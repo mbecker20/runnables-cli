@@ -8,7 +8,6 @@ use crate::{
   helpers::{absolute_path, split_match_strings},
   sources::{
     get_runnables,
-    javascript::{JavascriptCommand, JavascriptParams},
     rust_bin::{RustBinCommand, RustBinParams},
     rust_lib::{RustLibCommand, RustLibParams},
   },
@@ -140,20 +139,20 @@ impl State {
           }
           _ => false,
         },
-        RunnableParams::Javascript(_) => {
-          let command = match key {
-            'y' | 'r' => Some(JavascriptCommand::Yarn),
-            'n' => Some(JavascriptCommand::Npm),
-            _ => None,
-          };
-          if let Some(command) = command {
-            self.set_runnable();
-            self.runnable.params = RunnableParams::Javascript(JavascriptParams { command });
-            true
-          } else {
-            false
-          }
-        }
+        // RunnableParams::Javascript(_) => {
+        //   let command = match key {
+        //     'y' | 'r' => Some(JavascriptCommand::Yarn),
+        //     'n' => Some(JavascriptCommand::Npm),
+        //     _ => None,
+        //   };
+        //   if let Some(command) = command {
+        //     self.set_runnable();
+        //     self.runnable.params = RunnableParams::Javascript(JavascriptParams { command });
+        //     true
+        //   } else {
+        //     false
+        //   }
+        // }
         RunnableParams::RustBin(_) => {
           let command = match key {
             'r' => Some(RustBinCommand::Run),

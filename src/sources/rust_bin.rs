@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use serde::Deserialize;
 
 use crate::{
-  runnables::{FindRunnables, RunRunnable},
+  runnables::{AddRunnables, RunRunnable},
   types::{Runnable, RunnableParams},
 };
 
@@ -59,8 +59,8 @@ struct CargoTomlPackage {
 
 pub struct RustBin;
 
-impl FindRunnables for RustBin {
-  fn find_runnable(path: &Path) -> anyhow::Result<Vec<Runnable>> {
+impl AddRunnables for RustBin {
+  fn add_runnable(path: &Path, runnables: &mut Vec<Runnable>) -> anyhow::Result<()> {
     let metadata = path.metadata()?;
     if !metadata.is_dir() {
       return Err(anyhow!("path is not directory"));
@@ -69,8 +69,6 @@ impl FindRunnables for RustBin {
     let CargoToml {
       package: CargoTomlPackage { name, description },
     } = toml::from_str(&cargo_toml_contents)?;
-
-    let mut runnables: Vec<Runnable> = Default::default();
 
     if let Ok(bin) = fs::metadata(path.join("src/main.rs")) {
       if bin.is_file() {
@@ -85,7 +83,7 @@ impl FindRunnables for RustBin {
       }
     }
 
-    Ok(runnables)
+    Ok(())
   }
 }
 

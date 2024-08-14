@@ -5,8 +5,7 @@ use colored::Colorize;
 use derive_variants::EnumVariants;
 
 use crate::sources::{
-  javascript::JavascriptParams, runfile::RunFileParams, rust_bin::RustBinParams,
-  rust_lib::RustLibParams, shell::ShellParams,
+  runfile::RunFileParams, rust_bin::RustBinParams, rust_lib::RustLibParams, shell::ShellParams,
 };
 
 #[derive(Clone, Debug, Default)]
@@ -28,7 +27,6 @@ pub enum RunnableParams {
   Shell(ShellParams),
   RustBin(RustBinParams),
   RustLib(RustLibParams),
-  Javascript(JavascriptParams),
 }
 
 impl Display for RunnableParams {
@@ -38,7 +36,6 @@ impl Display for RunnableParams {
       RunnableParams::Shell(_) => "shell",
       RunnableParams::RustBin(_) => "rust (bin)",
       RunnableParams::RustLib(_) => "rust (lib)",
-      RunnableParams::Javascript(_) => "javascript",
       RunnableParams::None => "none",
     };
     f.write_str(d)

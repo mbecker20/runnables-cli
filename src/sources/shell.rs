@@ -3,7 +3,7 @@ use std::{fs, path::Path};
 use anyhow::anyhow;
 
 use crate::{
-  runnables::{FindRunnables, RunRunnable},
+  runnables::{AddRunnables, RunRunnable},
   types::{Runnable, RunnableParams},
 };
 
@@ -12,19 +12,17 @@ pub struct ShellParams {}
 
 pub struct Shell;
 
-impl FindRunnables for Shell {
-  fn find_runnable(path: &Path) -> anyhow::Result<Vec<Runnable>> {
+impl AddRunnables for Shell {
+  fn add_runnable(path: &Path, runnables: &mut Vec<Runnable>) -> anyhow::Result<()> {
     let metadata = path.metadata()?;
     if !metadata.is_dir() {
       return Err(anyhow!("path is not directory"));
     }
     let children = fs::read_dir(path)?;
-    let mut runnables: Vec<Runnable> = Default::default();
     for child in children {
-      if child.is_err() {
+      let Ok(child) = child else {
         continue;
-      }
-      let child = child.unwrap();
+      };
       if let Ok(metadata) = child.metadata() {
         if !metadata.is_file() {
           continue;
@@ -46,7 +44,7 @@ impl FindRunnables for Shell {
         })
       }
     }
-    Ok(runnables)
+    Ok(())
   }
 }
 

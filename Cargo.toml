@@ -4,24 +4,24 @@ description = "cli to run executables in a workspace"
 author = ["mbecker20 <becker.maxh@gmail.com>"]
 license = "GPL-3.0-or-later"
 edition = "2021"
-version = "1.1.0"
+version = "1.2.0"
 
 [[bin]]
 name = "run"
 path = "src/main.rs"
 
 [dependencies]
-serde = { version = "1.0.203", features = ["derive"] }
-clap = { version = "4.5.4", features = ["derive"] }
-indexmap = { version = "2.2.6", features = ["serde"] }
-ratatui = { version = "0.26.3", features = ["all-widgets"] }
-crossterm = "0.27.0"
-tui-input = "0.8.0"
+serde = { version = "1.0.207", features = ["derive"] }
+clap = { version = "4.5.15", features = ["derive"] }
+indexmap = { version = "2.4.0", features = ["serde"] }
+ratatui = { version = "0.28.0", features = ["all-widgets"] }
+crossterm = "0.28.1"
+tui-input = "0.10.0"
 run_command = "0.0.6"
 anyhow = "1.0.86"
 toml = "0.8.13"
 serde_json = "1.0.117"
 path-clean = "1.0.1"
-enum_cycling = "0.1.1"
+enum_cycling = "0.2.1"
 derive_variants = "1.0.0"
 colored = "2.1.0"

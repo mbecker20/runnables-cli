@@ -4,7 +4,7 @@ use indexmap::IndexMap;
 use serde::Deserialize;
 
 use crate::{
-  runnables::{FindRunnables, RunRunnable},
+  runnables::{AddRunnables, RunRunnable},
   types::{Runnable, RunnableParams},
 };
 
@@ -29,23 +29,20 @@ fn default_path() -> String {
 
 pub struct RunFile;
 
-impl FindRunnables for RunFile {
-  fn find_runnable(path: &Path) -> anyhow::Result<Vec<Runnable>> {
+impl AddRunnables for RunFile {
+  fn add_runnable(path: &Path, runnables: &mut Vec<Runnable>) -> anyhow::Result<()> {
     let file_path = path.join("runfile.toml");
     let contents = fs::read_to_string(file_path)?;
     let contents: RunFileContent = toml::from_str(&contents)?;
-    let runnables = contents
-      .into_iter()
-      .map(|(name, item)| Runnable {
-        name,
-        display_name: None,
-        description: item.description,
-        path: path.join(item.path),
-        index: 0,
-        params: RunnableParams::RunFile(RunFileParams { cmd: item.cmd }),
-      })
-      .collect();
-    Ok(runnables)
+    runnables.extend(contents.into_iter().map(|(name, item)| Runnable {
+      name,
+      display_name: None,
+      description: item.description,
+      path: path.join(item.path),
+      index: 0,
+      params: RunnableParams::RunFile(RunFileParams { cmd: item.cmd }),
+    }));
+    Ok(())
   }
 }
 

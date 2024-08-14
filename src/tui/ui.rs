@@ -18,7 +18,7 @@ use crate::{
 };
 
 pub fn render(frame: &mut Frame, state: &mut State, root_path: &str) -> anyhow::Result<()> {
-  let frame_size = frame.size().inner(&Margin::new(1, 1));
+  let frame_size = frame.area().inner(Margin::new(1, 1));
 
   render_bounder(frame, root_path, frame_size);
 
@@ -74,12 +74,12 @@ fn render_search(frame: &mut Frame, state: &State, frame_size: Rect) {
     .block(Block::default().title("search").borders(Borders::ALL));
   frame.render_widget(search, frame_size);
   if state.mode == Mode::Search {
-    frame.set_cursor(
+    frame.set_cursor_position((
       // Put cursor past the end of the input text
       frame_size.x + state.search.visual_cursor() as u16 + 1,
       // Move one line down, from the border to the input line
       frame_size.y + 1,
-    );
+    ));
   }
 }
 
@@ -207,18 +207,18 @@ fn keypress_helper(params: &RunnableParams) -> Vec<Line<'static>> {
         Span::from(": run"),
       ]),
     ],
-    RunnableParams::Javascript(_) => vec![
-      // Line::from("actions:"),
-      // Line::from(""),
-      Line::from(vec![
-        Span::from("y").bold().light_blue(),
-        Span::from(": yarn"),
-      ]),
-      Line::from(vec![
-        Span::from("n").bold().light_blue(),
-        Span::from(": npm"),
-      ]),
-    ],
+    // RunnableParams::Javascript(_) => vec![
+    //   // Line::from("actions:"),
+    //   // Line::from(""),
+    //   Line::from(vec![
+    //     Span::from("y").bold().light_blue(),
+    //     Span::from(": yarn"),
+    //   ]),
+    //   Line::from(vec![
+    //     Span::from("n").bold().light_blue(),
+    //     Span::from(": npm"),
+    //   ]),
+    // ],
     RunnableParams::RustBin(_) => vec![
       Line::from(vec![
         Span::from("r").bold().light_blue(),
