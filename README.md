@@ -4,6 +4,11 @@ CLI to run executables in a (usually cargo) workspace.
 
 ![screenshot](https://raw.githubusercontent.com/mbecker20/runnables-cli/master/screenshot.png)
 
+## Install
+`cargo install runnables-cli`
+
+Note. requires Cargo. Install with [rustup](https://rustup.rs/).
+
 ## Usage
 It's just `run` in the workspace directory.
 ```shell
