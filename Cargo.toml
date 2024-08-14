@@ -2,9 +2,10 @@
 name = "runnables-cli"
 description = "cli to run executables in a workspace"
 author = ["mbecker20 <becker.maxh@gmail.com>"]
+repository = "https://github.com/mbecker20/runnables-cli"
 license = "GPL-3.0-or-later"
 edition = "2021"
-version = "1.2.1"
+version = "1.2.2"
 
 [[bin]]
 name = "run"
