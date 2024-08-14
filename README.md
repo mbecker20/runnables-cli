@@ -11,6 +11,16 @@ Note. requires Cargo. Install with [rustup](https://rustup.rs/).
 
 ## Usage
 It's just `run` in the workspace directory.
+
+The TUI will load in, and you can use 'j' and 'k' (or up / down arrows) to move the selector.
+
+Press `Enter` over the desired selection to run it. Or you can use another letter to do something specific,
+like 'R' for 'cargo run --release'. All possible letters / actions are displayed in the right pane.
+
+Press Tab to activate search mode, and Tab again to exit search and return to the filtered selections.
+
+Pressing Esc while in search mode will clear the selection and exit search, and pressing Esc again will close the TUI (just like 'q'). 
+
 ```shell
 cli to run executables in a workspace
 
