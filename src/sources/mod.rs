@@ -21,21 +21,22 @@ pub mod shell;
 pub fn get_runnables(args: &CliArgs) -> anyhow::Result<Vec<Runnable>> {
   let path = PathBuf::from_str(&args.path)?;
 
+  let runincludes = get_runincludes(&path);
   let runignores = get_runignores(&path);
 
   let mut runnables = Vec::new();
 
   if !args.ignore.contains(&RunnableParamsVariant::RunFile) {
-    RunFile::add_runnables(&path, &runignores, &mut runnables);
+    RunFile::add_runnables(&path, &runincludes, &runignores, &mut runnables);
   }
   if !args.ignore.contains(&RunnableParamsVariant::Shell) {
-    Shell::add_runnables(&path, &runignores, &mut runnables);
+    Shell::add_runnables(&path, &runincludes, &runignores, &mut runnables);
   }
   if !args.ignore.contains(&RunnableParamsVariant::RustBin) {
-    RustBin::add_runnables(&path, &runignores, &mut runnables);
+    RustBin::add_runnables(&path, &runincludes, &runignores, &mut runnables);
   }
   if !args.ignore.contains(&RunnableParamsVariant::RustLib) {
-    RustLib::add_runnables(&path, &runignores, &mut runnables);
+    RustLib::add_runnables(&path, &runincludes, &runignores, &mut runnables);
   }
 
   Ok(runnables)
@@ -51,6 +52,33 @@ pub fn run_runnable(runnable: Runnable) {
       println!("got NONE runnable")
     }
   }
+}
+
+fn get_runincludes(path: &Path) -> Vec<PathBuf> {
+  let mut runincludes = Vec::<PathBuf>::new();
+  runincludes.extend(get_runinclude(path));
+  let Ok(entries) = fs::read_dir(path) else {
+    return runincludes;
+  };
+  for entry in entries.flatten() {
+    if let Ok(metadata) = entry.metadata() {
+      if metadata.is_dir() {
+        let path = entry.path();
+        runincludes.extend(get_runincludes(&path));
+      }
+    }
+  }
+  runincludes
+}
+
+fn get_runinclude(path: &Path) -> Vec<PathBuf> {
+  let Ok(runinclude) = fs::read_to_string(path.join(".runinclude")) else {
+    return Default::default();
+  };
+  runinclude
+    .split('\n')
+    .flat_map(|p| path.join(p).canonicalize())
+    .collect()
 }
 
 fn get_runignores(path: &Path) -> Vec<PathBuf> {

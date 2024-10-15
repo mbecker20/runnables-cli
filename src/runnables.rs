@@ -16,7 +16,12 @@ pub fn ignore_dir(path: &Path) -> bool {
 pub trait AddRunnables {
   fn add_runnable(path: &Path, runnables: &mut Vec<Runnable>) -> anyhow::Result<()>;
 
-  fn add_runnables(path: &Path, runignores: &[PathBuf], runnables: &mut Vec<Runnable>) {
+  fn add_runnables(
+    path: &Path,
+    runincludes: &[PathBuf],
+    runignores: &[PathBuf],
+    runnables: &mut Vec<Runnable>,
+  ) {
     Self::add_runnable(path, runnables).ok();
     let Ok(entries) = fs::read_dir(path) else {
       return;
@@ -27,8 +32,11 @@ pub trait AddRunnables {
           let path = entry.path();
           // Unwrap ok, path definitely on the system
           let norm = path.canonicalize().unwrap();
-          if !ignore_dir(&path) && !runignores.contains(&norm) {
-            Self::add_runnables(&path, runignores, runnables);
+          if (!runincludes.is_empty() && runincludes.contains(&norm))
+            && !ignore_dir(&path)
+            && !runignores.contains(&norm)
+          {
+            Self::add_runnables(&path, runincludes, runignores, runnables);
           }
         }
       }
