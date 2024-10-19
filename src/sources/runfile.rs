@@ -21,7 +21,7 @@ pub struct RunFileItem {
   #[serde(alias = "cmd")]
   pub command: String,
   /// Specify other run file item to run before this one, in order from top to bottom.
-  #[serde(deserialize_with = "crate::helpers::string_list_deserializer")]
+  #[serde(default, deserialize_with = "crate::helpers::string_list_deserializer")]
   pub after: Option<Vec<String>>,
   /// Describe what this run file item does.
   pub description: Option<String>,
