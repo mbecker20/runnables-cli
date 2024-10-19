@@ -165,7 +165,7 @@ fn render_info(
       if let Some(after) = &selected.after {
         lines.push(Line::from(vec![
           Span::from("after: "),
-          Span::from(after).light_blue().bold(),
+          Span::from(format!("{after:?}")).light_blue().bold(),
         ]));
       }
 

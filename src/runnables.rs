@@ -56,21 +56,23 @@ pub trait RunRunnable {
 
   fn run(runnable: &Runnable, params: &Self::Params, runnables: &[Rc<Runnable>]) {
     if let Some(after) = &runnable.after {
-      let (runnable_type, after) = after
-        .split_once(':')
-        .map(|(ty, after)| {
-          (
-            ty.parse::<RunnableParamsVariant>()
-              .expect("Invalid runnable variant in 'after'"),
-            after,
-          )
-        })
-        .unwrap_or((RunnableParamsVariant::RunFile, after));
-      if let Some(before) = runnables
-        .iter()
-        .find(|r| r.params.extract_variant() == runnable_type && r.name == *after)
-      {
-        run_runnable(before, runnables);
+      for after in after {
+        let (runnable_type, after) = after
+          .split_once(':')
+          .map(|(ty, after)| {
+            (
+              ty.parse::<RunnableParamsVariant>()
+                .expect("Invalid runnable variant in 'after'"),
+              after,
+            )
+          })
+          .unwrap_or((RunnableParamsVariant::RunFile, after));
+        if let Some(before) = runnables
+          .iter()
+          .find(|r| r.params.extract_variant() == runnable_type && r.name == *after)
+        {
+          run_runnable(before, runnables);
+        }
       }
     }
     let command = Self::command(runnable, params);

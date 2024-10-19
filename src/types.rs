@@ -14,8 +14,8 @@ pub struct Runnable {
   pub name: String,
   pub display_name: Option<String>,
   pub description: Option<String>,
-  /// The name of another runnable to run before this one.
-  pub after: Option<String>,
+  /// The names of other runnables to run before this one, in order from first to last.
+  pub after: Option<Vec<String>>,
   pub path: PathBuf,
   pub index: usize,
   pub params: RunnableParams,
@@ -52,7 +52,7 @@ impl Runnable {
     println!("type: {}", self.params.to_string().bright_blue());
 
     if let Some(after) = &self.after {
-      println!("after: {}", after.bright_blue());
+      println!("after: {}", format!("{after:?}").bright_blue());
     }
 
     if let RunnableParams::RustBin(params) = &self.params {
