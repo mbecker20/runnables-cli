@@ -37,7 +37,7 @@ pub trait AddRunnables {
           let path = entry.path();
           // Unwrap ok, path definitely on the system
           let norm = path.canonicalize().unwrap();
-          if (!runincludes.is_empty() && runincludes.contains(&norm))
+          if (runincludes.is_empty() || runincludes.contains(&norm))
             && !ignore_dir(&path)
             && !runignores.contains(&norm)
           {
