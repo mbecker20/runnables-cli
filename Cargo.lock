@@ -505,7 +505,7 @@ checksum = "388e1106aa4bd809ba57afecb8b3efc60b6599cd06a774d5798a7c5a29675307"
 
 [[package]]
 name = "runnables-cli"
-version = "1.3.1"
+version = "1.3.2"
 dependencies = [
  "anyhow",
  "clap",
