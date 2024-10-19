@@ -1,6 +1,7 @@
 [just-ls]
 description = "logs files / folders in current directory"
 cmd = "ls -a"
+after = "ls-in-src"
 
 [ls-in-src]
 description = "logs files / folders in src directory"

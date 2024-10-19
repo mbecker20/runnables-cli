@@ -10,15 +10,22 @@ use crate::{
 
 #[derive(Debug, Clone, Default)]
 pub struct RunFileParams {
-  pub cmd: String,
+  pub command: String,
 }
 
 pub type RunFileContent = IndexMap<String, RunFileItem>;
 
 #[derive(Deserialize)]
 pub struct RunFileItem {
-  pub cmd: String,
+  /// The shell command to run.
+  #[serde(alias = "cmd")]
+  pub command: String,
+  /// Specify another run file item to run before this one.
+  pub after: Option<String>,
+  /// Describe what this run file item does.
   pub description: Option<String>,
+  /// The path to use as the working directory,
+  /// relative to the directory which contains the `runfile.toml`.
   #[serde(default = "default_path")]
   pub path: String,
 }
@@ -38,9 +45,12 @@ impl AddRunnables for RunFile {
       name,
       display_name: None,
       description: item.description,
+      after: item.after,
       path: path.join(item.path),
       index: 0,
-      params: RunnableParams::RunFile(RunFileParams { cmd: item.cmd }),
+      params: RunnableParams::RunFile(RunFileParams {
+        command: item.command,
+      }),
     }));
     Ok(())
   }
@@ -50,6 +60,6 @@ impl RunRunnable for RunFile {
   type Params = RunFileParams;
 
   fn command(runnable: &Runnable, params: &Self::Params) -> String {
-    format!("cd {} && {}", runnable.path.display(), params.cmd)
+    format!("cd {} && {}", runnable.path.display(), params.command)
   }
 }

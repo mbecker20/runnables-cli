@@ -38,6 +38,7 @@ impl AddRunnables for Shell {
           name: child.path().display().to_string(),
           display_name: None,
           path: child.path(),
+          after: None,
           index: 0,
           params: RunnableParams::Shell(ShellParams {}),
           description: Default::default(),

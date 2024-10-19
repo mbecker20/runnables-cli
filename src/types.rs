@@ -3,6 +3,7 @@ use std::{fmt::Display, path::PathBuf};
 use clap::ValueEnum;
 use colored::Colorize;
 use derive_variants::EnumVariants;
+use strum::EnumString;
 
 use crate::sources::{
   runfile::RunFileParams, rust_bin::RustBinParams, rust_lib::RustLibParams, shell::ShellParams,
@@ -13,13 +14,15 @@ pub struct Runnable {
   pub name: String,
   pub display_name: Option<String>,
   pub description: Option<String>,
+  /// The name of another runnable to run before this one.
+  pub after: Option<String>,
   pub path: PathBuf,
   pub index: usize,
   pub params: RunnableParams,
 }
 
 #[derive(Debug, Clone, Default, EnumVariants)]
-#[variant_derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+#[variant_derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum, EnumString)]
 pub enum RunnableParams {
   #[default]
   None,
@@ -47,6 +50,10 @@ impl Runnable {
     println!("-----------------------");
     println!("running: {}", self.name.bright_blue());
     println!("type: {}", self.params.to_string().bright_blue());
+
+    if let Some(after) = &self.after {
+      println!("after: {}", after.bright_blue());
+    }
 
     if let RunnableParams::RustBin(params) = &self.params {
       println!("command: {}", params.command.to_string().bright_blue());

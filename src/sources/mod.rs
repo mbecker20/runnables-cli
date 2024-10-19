@@ -1,6 +1,7 @@
 use std::{
   fs,
   path::{Path, PathBuf},
+  rc::Rc,
   str::FromStr,
 };
 
@@ -42,12 +43,12 @@ pub fn get_runnables(args: &CliArgs) -> anyhow::Result<Vec<Runnable>> {
   Ok(runnables)
 }
 
-pub fn run_runnable(runnable: Runnable) {
+pub fn run_runnable(runnable: &Runnable, runnables: &[Rc<Runnable>]) {
   match &runnable.params {
-    RunnableParams::RunFile(params) => RunFile::run(&runnable, params),
-    RunnableParams::Shell(params) => Shell::run(&runnable, params),
-    RunnableParams::RustBin(params) => RustBin::run(&runnable, params),
-    RunnableParams::RustLib(params) => RustLib::run(&runnable, params),
+    RunnableParams::RunFile(params) => RunFile::run(runnable, params, runnables),
+    RunnableParams::Shell(params) => Shell::run(runnable, params, runnables),
+    RunnableParams::RustBin(params) => RustBin::run(runnable, params, runnables),
+    RunnableParams::RustLib(params) => RustLib::run(runnable, params, runnables),
     RunnableParams::None => {
       println!("got NONE runnable")
     }

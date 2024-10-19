@@ -162,6 +162,13 @@ fn render_info(
           .bold(),
       ]));
 
+      if let Some(after) = &selected.after {
+        lines.push(Line::from(vec![
+          Span::from("after: "),
+          Span::from(after).light_blue().bold(),
+        ]));
+      }
+
       let description = selected
         .description
         .as_ref()
@@ -170,9 +177,9 @@ fn render_info(
       lines.push(Line::from(""));
       lines.push(Line::from(description));
 
-      if let RunnableParams::RunFile(RunFileParams { cmd }) = &selected.params {
+      if let RunnableParams::RunFile(RunFileParams { command }) = &selected.params {
         lines.push(Line::from(""));
-        lines.push(Line::from(Span::from(cmd).light_blue().bold()));
+        lines.push(Line::from(Span::from(command).light_blue().bold()));
       }
 
       lines.push(Line::from(""));

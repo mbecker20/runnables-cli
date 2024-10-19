@@ -70,6 +70,7 @@ impl AddRunnables for RustLib {
           name: name.clone(),
           display_name: None,
           description: description.clone(),
+          after: None,
           path: path.to_owned(),
           index: 0,
           params: RunnableParams::RustLib(RustLibParams::default()),

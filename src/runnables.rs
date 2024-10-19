@@ -1,11 +1,16 @@
 use std::{
   fs,
   path::{Path, PathBuf},
+  rc::Rc,
 };
 
+use derive_variants::ExtractVariant;
 use run_command::run_command_pipe_to_terminal;
 
-use crate::types::Runnable;
+use crate::{
+  sources::run_runnable,
+  types::{Runnable, RunnableParamsVariant},
+};
 
 const IGNORE: [&str; 3] = ["target", "node_modules", ".git"];
 
@@ -49,7 +54,25 @@ pub trait RunRunnable {
 
   fn command(runnable: &Runnable, params: &Self::Params) -> String;
 
-  fn run(runnable: &Runnable, params: &Self::Params) {
+  fn run(runnable: &Runnable, params: &Self::Params, runnables: &[Rc<Runnable>]) {
+    if let Some(after) = &runnable.after {
+      let (runnable_type, after) = after
+        .split_once(':')
+        .map(|(ty, after)| {
+          (
+            ty.parse::<RunnableParamsVariant>()
+              .expect("Invalid runnable variant in 'after'"),
+            after,
+          )
+        })
+        .unwrap_or((RunnableParamsVariant::RunFile, after));
+      if let Some(before) = runnables
+        .iter()
+        .find(|r| r.params.extract_variant() == runnable_type && r.name == *after)
+      {
+        run_runnable(before, runnables);
+      }
+    }
     let command = Self::command(runnable, params);
     run_command_pipe_to_terminal(&command);
   }

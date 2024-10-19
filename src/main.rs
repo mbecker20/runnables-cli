@@ -45,7 +45,7 @@ fn main() -> anyhow::Result<()> {
       }
       state.runnable.log_info();
       let timer = Instant::now();
-      run_runnable(state.runnable);
+      run_runnable(&state.runnable, &state.runnables);
       println!(
         "\n{} {}",
         "FINISHED in".dimmed(),
