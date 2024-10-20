@@ -63,16 +63,16 @@ fn get_runincludes(path: &Path) -> Vec<PathBuf> {
 
 fn get_runincludes_inner(path: &Path, runincludes: &mut Vec<PathBuf>) {
   add_runincludes(path, runincludes);
-  let Ok(entries) = fs::read_dir(path) else {
-    return;
-  };
-  for entry in entries.flatten() {
-    if let Ok(metadata) = entry.metadata() {
-      if metadata.is_dir() {
-        get_runincludes_inner(&entry.path(), runincludes)
-      }
-    }
-  }
+  // let Ok(entries) = fs::read_dir(path) else {
+  //   return;
+  // };
+  // for entry in entries.flatten() {
+  //   if let Ok(metadata) = entry.metadata() {
+  //     if metadata.is_dir() {
+  //       get_runincludes_inner(&entry.path(), runincludes)
+  //     }
+  //   }
+  // }
 }
 
 fn add_runincludes(path: &Path, runincludes: &mut Vec<PathBuf>) {
