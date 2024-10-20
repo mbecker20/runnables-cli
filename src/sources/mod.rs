@@ -101,7 +101,9 @@ fn get_runignores_inner(path: &Path, runignores: &mut Vec<PathBuf>, runincludes:
     if let Ok(metadata) = entry.metadata() {
       if metadata.is_dir() {
         let path = entry.path();
-        if (!runincludes.is_empty() && runincludes.contains(&path)) && !ignore_dir(&path) {
+        // Unwrap ok, path definitely on the system
+        let norm = path.canonicalize().unwrap();
+        if (runincludes.is_empty() || runincludes.contains(&norm)) && !ignore_dir(&path) {
           get_runignores_inner(&path, runignores, runincludes);
         }
       }
