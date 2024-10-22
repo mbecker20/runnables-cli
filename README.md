@@ -21,20 +21,21 @@ Press `Tab` to activate search mode, and `Tab` again to exit search and return t
 
 Pressing `Esc` while in search mode will clear the selection and exit search, and pressing `Esc` again will close the TUI (just like `q`). 
 
-```shell
+```sh
 cli to run executables in a workspace
 
 Usage: run [OPTIONS] [PATH]
 
 Arguments:
-  [PATH]  [default: .]
+  [PATH]  The root path to search for runnables. Default: "." [default: .]
 
 Options:
-  -s, --search <SEARCH>  
-  -c, --color <COLOR>    [default: Blue]
-  -i, --ignore <IGNORE>  [possible values: none, run-file, shell, rust-bin, rust-lib, javascript]
-  -h, --help             Print help
-  -V, --version          Print version
+  -r, --runnable <RUNNABLE>  Specify a specific runnable to run. Example: - "just-ls" or "RunFile:just-ls" - match to a runnable declared in runfile. - "RustBin:runnables-cli" - match to a runnable picked up as a rust binary crate
+  -s, --search <SEARCH>      Open the interface with a pre-filled search query
+  -c, --color <COLOR>        Specify the color theme to use [default: Blue]
+  -i, --ignore <IGNORE>      Ignore specific runnable types [possible values: none, run-file, shell, rust-bin, rust-lib]
+  -h, --help                 Print help
+  -V, --version              Print version
 ```
 
 ## What it does:
