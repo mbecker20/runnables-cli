@@ -12,9 +12,8 @@ use crate::{
   types::{Runnable, RunnableParamsVariant},
 };
 
-const IGNORE: [&str; 3] = ["target", "node_modules", ".git"];
-
 pub fn ignore_dir(path: &Path) -> bool {
+  const IGNORE: &[&str] = &["target", "node_modules", ".git"];
   IGNORE.iter().any(|ignore| path.ends_with(ignore))
 }
 
