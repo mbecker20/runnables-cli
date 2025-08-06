@@ -1,12 +1,9 @@
 use derive_variants::ExtractVariant;
 use ratatui::{
-  prelude::{Alignment, Constraint, Direction, Layout, Margin, Rect},
+  prelude::{Constraint, Direction, Layout, Margin, Rect},
   style::{Color, Style, Stylize},
   text::{Line, Span},
-  widgets::{
-    block::{Position, Title},
-    Block, Borders, Paragraph, Wrap,
-  },
+  widgets::{Block, Borders, Paragraph, Wrap},
   Frame,
 };
 
@@ -47,13 +44,9 @@ fn render_bounder(frame: &mut Frame, root_path: &str, frame_size: Rect) {
       "runnables-cli",
       Style::default().light_blue().bold(),
     ))
-    .title(
-      Title::from(Span::styled(root_path, Style::default().bold())).alignment(Alignment::Right),
-    )
-    .title(
-      Title::from(Span::styled("press 'q' to quit", Style::default().bold()))
-        .position(Position::Bottom)
-        .alignment(Alignment::Right),
+    .title(Span::styled(root_path, Style::default().bold()).into_right_aligned_line())
+    .title_bottom(
+      Span::styled("press 'q' to quit", Style::default().bold()).into_right_aligned_line(),
     );
 
   frame.render_widget(border, frame_size);

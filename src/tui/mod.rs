@@ -4,12 +4,15 @@ use std::{
 };
 
 use anyhow::Context;
-use crossterm::{
-  event::{self, DisableMouseCapture, EnableMouseCapture, Event},
-  execute,
-  terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+use ratatui::{
+  crossterm::{
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+  },
+  prelude::CrosstermBackend,
+  Terminal,
 };
-use ratatui::{prelude::CrosstermBackend, Terminal};
 
 use crate::state::State;
 

@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use clap::Parser;
-use crossterm::event::{Event, KeyCode};
+use ratatui::crossterm::event::{Event, KeyCode};
 use tui_input::{backend::crossterm::EventHandler, Input};
 
 use crate::{
