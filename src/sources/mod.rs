@@ -113,11 +113,13 @@ fn get_runignores_inner(path: &Path, runignores: &mut Vec<PathBuf>, runincludes:
 
 fn add_runignores(path: &Path, runignores: &mut Vec<PathBuf>) {
   let Ok(runignore) = fs::read_to_string(path.join(".runignore")) else {
-    return Default::default();
+    return;
   };
   runignores.extend(
     runignore
       .split('\n')
+      .map(|line| line.trim())
+      .filter(|line| !line.is_empty())
       .flat_map(|p| path.join(p).canonicalize()),
   );
 }

@@ -107,7 +107,7 @@ fn render_list(frame: &mut Frame, state: &mut State, layout: &[Rect]) {
   frame.render_widget(list, layout[0]);
 }
 
-fn runnable_line(runnable: &Runnable, selected: bool) -> Line {
+fn runnable_line(runnable: &Runnable, selected: bool) -> Line<'_> {
   let name = runnable
     .display_name
     .as_ref()

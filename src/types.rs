@@ -12,6 +12,7 @@ use crate::sources::{
 #[derive(Clone, Debug, Default)]
 pub struct Runnable {
   pub name: String,
+  pub aliases: Vec<String>,
   pub display_name: Option<String>,
   pub description: Option<String>,
   /// The names of other runnables to run before this one, in order from first to last.

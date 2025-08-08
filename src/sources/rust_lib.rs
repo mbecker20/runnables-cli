@@ -68,6 +68,7 @@ impl AddRunnables for RustLib {
       if lib.is_file() {
         runnables.push(Runnable {
           name: name.clone(),
+          aliases: Default::default(),
           display_name: None,
           description: description.clone(),
           after: None,

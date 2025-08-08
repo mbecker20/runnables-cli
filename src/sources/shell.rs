@@ -36,6 +36,7 @@ impl AddRunnables for Shell {
       {
         runnables.push(Runnable {
           name: child.path().display().to_string(),
+          aliases: Default::default(),
           display_name: None,
           path: child.path(),
           after: None,

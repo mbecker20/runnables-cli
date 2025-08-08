@@ -10,6 +10,7 @@ use types::RunnableParamsVariant;
 
 use crate::{sources::run_runnable, types::RunnableParams};
 
+mod deserializers;
 mod helpers;
 mod runnables;
 mod sources;
@@ -59,7 +60,10 @@ fn main() -> anyhow::Result<()> {
     let Some(runnable) = state
       .runnables
       .iter()
-      .find(|r| r.params.extract_variant() == runnable_type && r.name == label)
+      .find(|r| {
+        r.params.extract_variant() == runnable_type
+          && (r.name == label || r.aliases.iter().any(|alias| label == alias))
+      })
       .map(|r| r.as_ref().clone())
     else {
       return Err(anyhow!("runnable not found: {}", label));

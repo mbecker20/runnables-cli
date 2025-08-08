@@ -17,6 +17,17 @@ pub type RunFileContent = IndexMap<String, RunFileItem>;
 
 #[derive(Deserialize)]
 pub struct RunFileItem {
+  /// Optional. The runnable aliases. (aliases: `aliases`, `alias`)
+  ///
+  /// Run them using `run -r <alias>`.
+  #[serde(
+    default,
+    alias = "aliases",
+    alias = "alias",
+    deserialize_with = "crate::deserializers::string_list_deserializer",
+    skip_serializing_if = "Vec::is_empty"
+  )]
+  pub aliases: Vec<String>,
   /// The shell command to run.
   #[serde(alias = "cmd")]
   pub command: String,
@@ -44,6 +55,7 @@ impl AddRunnables for RunFile {
     let contents: RunFileContent = toml::from_str(&contents)?;
     runnables.extend(contents.into_iter().map(|(name, item)| Runnable {
       name,
+      aliases: item.aliases,
       display_name: None,
       description: item.description,
       after: item.after,
