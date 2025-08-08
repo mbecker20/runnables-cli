@@ -141,6 +141,16 @@ fn render_info(
         Span::from("name: "),
         Span::from(&selected.name).light_blue().bold(),
       ]));
+      if !selected.aliases.is_empty() {
+        lines.push(Line::from(vec![
+          if selected.aliases.len() > 1 {
+            Span::from("aliases: ")
+          } else {
+            Span::from("alias: ")
+          },
+          Span::from(selected.aliases.join(", ")).light_blue().bold(),
+        ]));
+      }
 
       let path = runnable_path_display(root_path, &selected.path)?;
       lines.push(Line::from(vec![

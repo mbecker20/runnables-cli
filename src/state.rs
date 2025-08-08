@@ -63,7 +63,9 @@ impl State {
     self.active = self
       .runnables
       .iter()
-      .filter(|runnable| split_match_strings(self.search.value(), &runnable.name))
+      .filter(|runnable| {
+        split_match_strings(self.search.value(), &runnable.name, &runnable.aliases())
+      })
       .cloned()
       .collect();
   }

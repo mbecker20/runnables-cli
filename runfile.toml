@@ -1,14 +1,17 @@
 [just-ls]
+alias = "jls"
 description = "logs files / folders in current directory"
 cmd = "ls -a"
 after = "ls-in-src"
 
 [ls-in-src]
+alias = "lis"
 description = "logs files / folders in src directory"
 cmd = "ls -a"
 path = "src"
 
 [ls-in-example]
+alias = "lie"
 description = "logs files / folders in example directory"
 cmd = "ls -a"
 path = "runnables-example"

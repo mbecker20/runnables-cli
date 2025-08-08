@@ -63,4 +63,8 @@ impl Runnable {
     println!("path: {}", self.path.display().to_string().bright_blue());
     println!("-----------------------\n");
   }
+
+  pub fn aliases(&self) -> Vec<&str> {
+    self.aliases.iter().map(String::as_str).collect::<Vec<_>>()
+  }
 }
