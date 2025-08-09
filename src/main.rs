@@ -21,24 +21,27 @@ mod types;
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 pub struct CliArgs {
+  /// Specify a specific runnable to run.
+  /// Can also match on aliases configured in the runfile.
+  /// 
+  /// Example:
+  /// 
+  /// - "just-ls" or "RunFile:just-ls" - match to a runnable declared in runfile.
+  /// 
+  /// - "RustBin:runnables-cli" - match to a runnable picked up as a rust binary crate.
+  runnable: Option<String>,
   /// The root path to search for runnables.
   /// Default: "."
-  #[arg(default_value_t = String::from("."))]
+  #[arg(long, short = 'p', default_value_t = String::from("."))]
   path: String,
-  /// Specify a specific runnable to run.
-  /// Example:
-  /// - "just-ls" or "RunFile:just-ls" - match to a runnable declared in runfile.
-  /// - "RustBin:runnables-cli" - match to a runnable picked up as a rust binary crate.
-  #[arg(short, long)]
-  runnable: Option<String>,
   /// Open the interface with a pre-filled search query.
-  #[arg(short, long)]
+  #[arg(long, short = 's')]
   search: Option<String>,
   /// Specify the color theme to use.
-  #[arg(short, long, default_value_t = Color::Blue)]
+  #[arg(long, short = 'c', default_value_t = Color::Blue)]
   color: Color,
   /// Ignore specific runnable types
-  #[arg(short, long)]
+  #[arg(long, short = 'i')]
   ignore: Vec<RunnableParamsVariant>,
 }
 

@@ -17,6 +17,6 @@ cmd = "ls -a"
 path = "runnables-example"
 
 [publish]
-alias = "p"
+alias = ["pub", "p"]
 description = "publishes 'runnables-cli' to crates.io"
 cmd = "cargo publish"

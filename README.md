@@ -24,18 +24,18 @@ Pressing `Esc` while in search mode will clear the selection and exit search, an
 ```sh
 cli to run executables in a workspace
 
-Usage: run [OPTIONS] [PATH]
+Usage: run [OPTIONS] [RUNNABLE]
 
 Arguments:
-  [PATH]  The root path to search for runnables. Default: "." [default: .]
+  [RUNNABLE]  Specify a specific runnable to run. Can also match on aliases configured in the runfile. Example: - "just-ls" or "RunFile:just-ls" - match to a runnable declared in runfile. - "RustBin:runnables-cli" - match to a runnable picked up as a rust binary crate
 
 Options:
-  -r, --runnable <RUNNABLE>  Specify a specific runnable to run. Example: - "just-ls" or "RunFile:just-ls" - match to a runnable declared in runfile. - "RustBin:runnables-cli" - match to a runnable picked up as a rust binary crate
-  -s, --search <SEARCH>      Open the interface with a pre-filled search query
-  -c, --color <COLOR>        Specify the color theme to use [default: Blue]
-  -i, --ignore <IGNORE>      Ignore specific runnable types [possible values: none, run-file, shell, rust-bin, rust-lib]
-  -h, --help                 Print help
-  -V, --version              Print version
+  -p, --path <PATH>      The root path to search for runnables. Default: "." [default: .]
+  -s, --search <SEARCH>  Open the interface with a pre-filled search query
+  -c, --color <COLOR>    Specify the color theme to use [default: Blue]
+  -i, --ignore <IGNORE>  Ignore specific runnable types [possible values: none, run-file, shell, rust-bin, rust-lib]
+  -h, --help             Print help
+  -V, --version          Print version
 ```
 
 ## What it does:
