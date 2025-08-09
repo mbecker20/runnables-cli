@@ -23,7 +23,9 @@ pub struct Runnable {
 }
 
 #[derive(Debug, Clone, Default, EnumVariants)]
-#[variant_derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum, EnumString)]
+#[variant_derive(
+  Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, ValueEnum, EnumString
+)]
 pub enum RunnableParams {
   #[default]
   None,

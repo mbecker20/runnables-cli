@@ -1,3 +1,13 @@
+[install]
+alias = "i"
+description = "Builds and installs 'runnables-cli' from source"
+cmd = "cargo install --path ."
+
+[publish]
+alias = ["pub", "p"]
+description = "publishes 'runnables-cli' to crates.io"
+cmd = "cargo publish"
+
 [just-ls]
 alias = "jls"
 description = "logs files / folders in current directory"
@@ -15,8 +25,3 @@ alias = "lie"
 description = "logs files / folders in example directory"
 cmd = "ls -a"
 path = "runnables-example"
-
-[publish]
-alias = ["pub", "p"]
-description = "publishes 'runnables-cli' to crates.io"
-cmd = "cargo publish"

@@ -1,9 +1,8 @@
-use derive_variants::ExtractVariant;
 use ratatui::{
   prelude::{Constraint, Direction, Layout, Margin, Rect},
   style::{Color, Style, Stylize},
   text::{Line, Span},
-  widgets::{Block, Borders, Paragraph, Wrap},
+  widgets::{Block, Borders, Paragraph, Row, Table, Wrap},
   Frame,
 };
 
@@ -11,7 +10,7 @@ use crate::{
   helpers::runnable_path_display,
   sources::runfile::RunFileParams,
   state::{Mode, State},
-  types::{Runnable, RunnableParams, RunnableParamsVariant},
+  types::RunnableParams,
 };
 
 pub fn render(frame: &mut Frame, state: &mut State, root_path: &str) -> anyhow::Result<()> {
@@ -29,7 +28,7 @@ pub fn render(frame: &mut Frame, state: &mut State, root_path: &str) -> anyhow::
 
   let h_layout = Layout::default()
     .direction(Direction::Horizontal)
-    .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
+    .constraints(vec![Constraint::Min(64), Constraint::Percentage(100)])
     .split(v_layout[1]);
 
   render_list(frame, state, &h_layout);
@@ -77,54 +76,40 @@ fn render_search(frame: &mut Frame, state: &State, frame_size: Rect) {
 }
 
 fn render_list(frame: &mut Frame, state: &mut State, layout: &[Rect]) {
-  let mut lines: Vec<Line> = Default::default();
-
   state.set_active_runnables();
-  let mut group = RunnableParamsVariant::None;
-  for (index, runnable) in state.active.iter().enumerate() {
-    let variant = runnable.params.extract_variant();
-    if variant != group {
-      if group != RunnableParamsVariant::None {
-        lines.push(Line::from(""));
-      }
-      group = variant;
-      let header = Line::styled(
-        format!("---------- {} ----------", runnable.params),
-        Style::default().white(),
-      );
-      lines.push(header);
+
+  let table_items = state.active.iter().enumerate().map(|(i, runnable)| {
+    let row = vec![
+      runnable
+        .display_name
+        .clone()
+        .unwrap_or(runnable.name.clone())
+        .light_blue(),
+      Span::from(runnable.params.to_string()),
+      Span::from(runnable.aliases.join(", ")),
+    ];
+    if i == state.selected {
+      Row::new(row).bold().underlined()
+    } else {
+      Row::new(row)
     }
-    let line = runnable_line(runnable, index == state.selected);
-    lines.push(line);
-  }
+  });
 
-  let list =
-    Paragraph::new(lines).block(Block::default().borders(Borders::ALL).fg(match state.mode {
-      Mode::List => state.args.color,
-      Mode::Search => Color::White,
-    }));
+  let table = Table::new(
+    table_items,
+    [
+      Constraint::Fill(2),
+      Constraint::Fill(1),
+      Constraint::Fill(1),
+    ],
+  )
+  .header(Row::new(["Name", "Type", "Alias"]).dim().underlined())
+  .block(Block::default().borders(Borders::ALL).fg(match state.mode {
+    Mode::List => state.args.color,
+    Mode::Search => Color::White,
+  }));
 
-  frame.render_widget(list, layout[0]);
-}
-
-fn runnable_line(runnable: &Runnable, selected: bool) -> Line<'_> {
-  let name = runnable
-    .display_name
-    .as_ref()
-    .unwrap_or(&runnable.name)
-    .clone();
-  let mut line = Line::from(vec![
-    // Span::from(runnable.params.to_string()).dim(),
-    // Span::from(" => ").dim().white(),
-    name.light_blue(),
-    // Span::from(" => ").gray(),
-    // Span::from(runnable.path.to_str().unwrap()).gray(),
-  ]);
-  if selected {
-    line = line.patch_style(Style::default().bold().underlined());
-  }
-
-  line
+  frame.render_widget(table, layout[0]);
 }
 
 fn render_info(
